@@ -174,3 +174,10 @@ primary:
 
 %%
 
+namespace yy {
+
+ void parser::error(const location_type& loc, const std::string& msg) {
+    std::cerr << "syntax error on " << loc << "!" << std::endl;
+}
+
+}

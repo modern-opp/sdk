@@ -4,7 +4,7 @@
 
 #include "driver.hpp"
 
-yy::driver::driver() {
+yy::driver::driver() : trace_parsing(false) {
 
 }
 

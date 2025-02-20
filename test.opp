@@ -1,5 +1,3 @@
 class Main is
     method main() is
-      print('Hello world')
-    end
-end
+      return 'Hello'
