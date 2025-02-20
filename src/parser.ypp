@@ -1,0 +1,176 @@
+%require "3.2"
+%language "C++"
+%define api.value.type variant
+%define api.token.constructor
+%define parse.assert
+%locations
+
+
+%code requires {
+#include <iostream>
+#include <string>
+
+
+
+
+namespace yy {
+    class driver;
+    class parser;
+
+
+
+
+}
+}
+
+%param { driver& drv }
+
+
+%code {
+
+namespace yy {
+    class driver;
+
+    # define YY_DECL \
+      yy::parser::symbol_type yylex (driver& drv)
+    YY_DECL;
+
+
+}
+}
+
+%token IDENTIFIER BOOLEAN_LITERAL INTEGER_LITERAL REAL_LITERAL STRING_LITERAL CLASS EXTENDS IS END THIS METHOD LEFT_PAREN RIGHT_PAREN COLON COMMA METHOD_DEFINITION RETURN VAR ASSIGNMENT_OPERATOR MEMBER_ACCESS_OPERATOR IF THEN ELSE WHILE LOOP
+%type <std::string> IDENTIFIER
+%type <bool> BOOLEAN_LITERAL
+%type <int> INTEGER_LITERAL
+%type <double> REAL_LITERAL
+%type <std::string> STRING_LITERAL
+
+%%
+
+program:
+    class_declarations expression
+  | expression
+;
+
+class_declarations:
+    class_declarations class_declaration
+  | class_declaration
+;
+
+class_declaration:
+    CLASS class_name EXTENDS class_name IS member_declarations END
+  | CLASS class_name IS member_declarations END
+;
+
+class_name: IDENTIFIER;
+
+member_declarations:
+    member_declarations member_declaration
+  | member_declaration
+;
+
+member_declaration:
+    variable_declaration
+  | method_declaration
+  | constructor_declaration
+;
+
+variable_declarations:
+    variable_declarations variable_declaration
+  | variable_declaration
+;
+
+variable_declaration: VAR IDENTIFIER COLON expression;
+
+method_declaration:
+    method_header method_body
+  | method_header
+;
+
+method_header:
+    METHOD IDENTIFIER parameters COLON IDENTIFIER
+  | METHOD IDENTIFIER parameters
+;
+
+method_body:
+    IS body END
+  | METHOD_DEFINITION return_statement
+  | METHOD_DEFINITION expression
+;
+
+parameters:
+    LEFT_PAREN parameter_declarations RIGHT_PAREN
+  | LEFT_PAREN RIGHT_PAREN
+;
+
+parameter_declarations:
+    parameter_declarations COMMA parameter_declaration
+  | parameter_declaration
+;
+
+parameter_declaration: IDENTIFIER COLON class_name;
+
+body:
+    variable_declarations
+  | statements
+;
+
+constructor_declaration: THIS parameters IS body END;
+
+statements:
+    statements statement
+  | statement
+;
+
+statement:
+    assignment
+  | while_loop
+  | if_statement
+  | return_statement
+;
+
+assignment: IDENTIFIER ASSIGNMENT_OPERATOR expression;
+
+while_loop: WHILE expression LOOP body END;
+
+if_statement:
+    IF expression THEN body ELSE body END;
+  | IF expression THEN body END
+;
+
+return_statement: RETURN expression;
+
+expressions:
+    expressions COMMA expression
+  | expression
+;
+
+expression:
+    primary method_calls
+  | primary
+;
+
+method_calls:
+    method_calls method_call
+  | method_call
+;
+
+method_call: MEMBER_ACCESS_OPERATOR IDENTIFIER arguments;
+
+arguments:
+    LEFT_PAREN expressions RIGHT_PAREN
+  | LEFT_PAREN RIGHT_PAREN
+;
+
+primary:
+    BOOLEAN_LITERAL
+  | INTEGER_LITERAL
+  | REAL_LITERAL
+  | STRING_LITERAL
+  | THIS
+  | class_name
+;
+
+%%
+
