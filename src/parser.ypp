@@ -5,38 +5,29 @@
 %define parse.assert
 %locations
 
-
 %code requires {
 #include <iostream>
 #include <string>
 
-
-
-
 namespace yy {
-    class driver;
+
     class parser;
 
-
-
+class driver;
 
 }
 }
 
 %param { driver& drv }
 
-
-%code {
-
+%code {    
 namespace yy {
-    class driver;
 
-    # define YY_DECL \
-      yy::parser::symbol_type yylex (driver& drv)
-    YY_DECL;
-
+    parser::symbol_type yylex(driver& drv);
 
 }
+
+extern yy::parser::symbol_type get_next_token();
 }
 
 %token IDENTIFIER BOOLEAN_LITERAL INTEGER_LITERAL REAL_LITERAL STRING_LITERAL CLASS EXTENDS IS END THIS METHOD LEFT_PAREN RIGHT_PAREN COLON COMMA METHOD_DEFINITION RETURN VAR ASSIGNMENT_OPERATOR MEMBER_ACCESS_OPERATOR IF THEN ELSE WHILE LOOP
@@ -48,14 +39,11 @@ namespace yy {
 
 %%
 
-program:
-    class_declarations expression
-  | expression
-;
+program: class_declarations expression;
 
 class_declarations:
     class_declarations class_declaration
-  | class_declaration
+  | %empty
 ;
 
 class_declaration:
@@ -67,7 +55,7 @@ class_name: IDENTIFIER;
 
 member_declarations:
     member_declarations member_declaration
-  | member_declaration
+  | %empty
 ;
 
 member_declaration:
@@ -78,7 +66,7 @@ member_declaration:
 
 variable_declarations:
     variable_declarations variable_declaration
-  | variable_declaration
+  | %empty
 ;
 
 variable_declaration: VAR IDENTIFIER COLON expression;
@@ -99,14 +87,11 @@ method_body:
   | METHOD_DEFINITION expression
 ;
 
-parameters:
-    LEFT_PAREN parameter_declarations RIGHT_PAREN
-  | LEFT_PAREN RIGHT_PAREN
-;
+parameters: LEFT_PAREN parameter_declarations RIGHT_PAREN;
 
 parameter_declarations:
     parameter_declarations COMMA parameter_declaration
-  | parameter_declaration
+  | %empty
 ;
 
 parameter_declaration: IDENTIFIER COLON class_name;
@@ -120,7 +105,7 @@ constructor_declaration: THIS parameters IS body END;
 
 statements:
     statements statement
-  | statement
+  | %empty
 ;
 
 statement:
@@ -143,25 +128,19 @@ return_statement: RETURN expression;
 
 expressions:
     expressions COMMA expression
-  | expression
+  | %empty
 ;
 
-expression:
-    primary method_calls
-  | primary
-;
+expression: primary method_calls;
 
 method_calls:
     method_calls method_call
-  | method_call
+  | %empty
 ;
 
 method_call: MEMBER_ACCESS_OPERATOR IDENTIFIER arguments;
 
-arguments:
-    LEFT_PAREN expressions RIGHT_PAREN
-  | LEFT_PAREN RIGHT_PAREN
-;
+arguments: LEFT_PAREN expressions RIGHT_PAREN;
 
 primary:
     BOOLEAN_LITERAL
@@ -169,14 +148,14 @@ primary:
   | REAL_LITERAL
   | STRING_LITERAL
   | THIS
-  | class_name
+  | class_name arguments
 ;
 
 %%
 
 namespace yy {
 
- void parser::error(const location_type& loc, const std::string& msg) {
+void parser::error(const location_type& loc, const std::string& msg) {
     std::cerr << "syntax error on " << loc << "!" << std::endl;
 }
 

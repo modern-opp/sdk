@@ -1,2 +1,10 @@
-cmake-build-debug
+.vs
 .idea
+cmake-*
+.cache
+.github
+build
+tests
+CMakeFiles
+cmake_install.cmake
+CMakeCache.txt
