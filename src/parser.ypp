@@ -13,17 +13,13 @@ namespace yy {
 
     class parser;
 
-class driver;
-
 }
 }
-
-%param { driver& drv }
 
 %code {    
 namespace yy {
 
-    parser::symbol_type yylex(driver& drv);
+    parser::symbol_type yylex();
 
 }
 
@@ -39,22 +35,22 @@ extern yy::parser::symbol_type get_next_token();
 
 %%
 
-program: class_declarations expression;
+program: class_declaration_list function_call;
 
-class_declarations:
-    class_declarations class_declaration
+class_declaration_list:
+    class_declaration_list class_declaration
   | %empty
 ;
 
 class_declaration:
-    CLASS class_name EXTENDS class_name IS member_declarations END
-  | CLASS class_name IS member_declarations END
+    CLASS class_name EXTENDS class_name IS member_declaration_list END
+  | CLASS class_name IS member_declaration_list END
 ;
 
 class_name: IDENTIFIER;
 
-member_declarations:
-    member_declarations member_declaration
+member_declaration_list:
+    member_declaration_list member_declaration
   | %empty
 ;
 
@@ -62,11 +58,6 @@ member_declaration:
     variable_declaration
   | method_declaration
   | constructor_declaration
-;
-
-variable_declarations:
-    variable_declarations variable_declaration
-  | %empty
 ;
 
 variable_declaration: VAR IDENTIFIER COLON expression;
@@ -82,31 +73,31 @@ method_header:
 ;
 
 method_body:
-    IS body END
+    IS body_list END
   | METHOD_DEFINITION return_statement
   | METHOD_DEFINITION expression
 ;
 
-parameters: LEFT_PAREN parameter_declarations RIGHT_PAREN;
+parameters: LEFT_PAREN parameter_declaration_list RIGHT_PAREN;
 
-parameter_declarations:
-    parameter_declarations COMMA parameter_declaration
+parameter_declaration_list:
+    parameter_declaration_list COMMA parameter_declaration
   | %empty
 ;
 
 parameter_declaration: IDENTIFIER COLON class_name;
 
-body:
-    variable_declarations
-  | statements
-;
-
-constructor_declaration: THIS parameters IS body END;
-
-statements:
-    statements statement
+body_list:
+    body_list body
   | %empty
 ;
+
+body:
+    variable_declaration
+  | statement
+;
+
+constructor_declaration: THIS parameters IS body_list END;
 
 statement:
     assignment
@@ -117,30 +108,25 @@ statement:
 
 assignment: IDENTIFIER ASSIGNMENT_OPERATOR expression;
 
-while_loop: WHILE expression LOOP body END;
+while_loop: WHILE expression LOOP body_list END;
 
 if_statement:
-    IF expression THEN body ELSE body END;
-  | IF expression THEN body END
+    IF expression THEN body_list ELSE body_list END;
+  | IF expression THEN body_list END
 ;
 
 return_statement: RETURN expression;
 
-expressions:
-    expressions COMMA expression
+expression_list:
+    expression_list COMMA expression
   | %empty
 ;
 
-expression: primary method_calls;
-
-method_calls:
-    method_calls method_call
-  | %empty
+expression:
+    primary
+  | member_access_list MEMBER_ACCESS_OPERATOR function_call
+  | function_call
 ;
-
-method_call: MEMBER_ACCESS_OPERATOR IDENTIFIER arguments;
-
-arguments: LEFT_PAREN expressions RIGHT_PAREN;
 
 primary:
     BOOLEAN_LITERAL
@@ -148,8 +134,21 @@ primary:
   | REAL_LITERAL
   | STRING_LITERAL
   | THIS
-  | class_name arguments
 ;
+
+member_access_list:
+    member_access_list MEMBER_ACCESS_OPERATOR member_access
+  | member_access
+;
+
+member_access:
+    primary
+  | function_call
+;
+
+function_call: IDENTIFIER arguments;
+
+arguments: LEFT_PAREN expression_list RIGHT_PAREN;
 
 %%
 
