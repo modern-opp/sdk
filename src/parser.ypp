@@ -7,7 +7,12 @@
 
 %code requires {
 #include <iostream>
+#include <memory>
 #include <string>
+#include <utility>
+#include <vector>
+
+#include "ast.hpp"
 
 namespace yy {
 
@@ -26,129 +31,186 @@ namespace yy {
 extern yy::parser::symbol_type get_next_token();
 }
 
-%token IDENTIFIER BOOLEAN_LITERAL INTEGER_LITERAL REAL_LITERAL STRING_LITERAL CLASS EXTENDS IS END THIS METHOD LEFT_PAREN RIGHT_PAREN COLON COMMA METHOD_DEFINITION RETURN VAR ASSIGNMENT_OPERATOR MEMBER_ACCESS_OPERATOR IF THEN ELSE WHILE LOOP
+%token
+    IDENTIFIER
+    BOOLEAN_LITERAL
+    INTEGER_LITERAL
+    REAL_LITERAL
+    STRING_LITERAL
+    CLASS
+    EXTENDS
+    IS
+    END
+    THIS
+    METHOD
+    LEFT_PAREN
+    RIGHT_PAREN
+    COLON
+    COMMA
+    METHOD_DEFINITION
+    RETURN
+    VAR
+    ASSIGNMENT_OPERATOR
+    MEMBER_ACCESS_OPERATOR
+    IF
+    THEN
+    ELSE
+    WHILE
+    LOOP
+
 %type <std::string> IDENTIFIER
 %type <bool> BOOLEAN_LITERAL
 %type <int> INTEGER_LITERAL
 %type <double> REAL_LITERAL
 %type <std::string> STRING_LITERAL
+%type <std::string> class_name
+%type <std::unique_ptr<Program>> program
+%type <std::vector<std::unique_ptr<ProgramDeclarationExpr>>> class_declaration_list
+%type <std::unique_ptr<ProgramDeclarationExpr>> class_declaration
+%type <std::vector<std::unique_ptr<MemberDeclarationExpr>>> member_declaration_list
+%type <std::unique_ptr<MemberDeclarationExpr>> member_declaration
+%type <std::unique_ptr<VariableDeclaration>> variable_declaration
+%type <std::unique_ptr<MemberDeclarationExpr>> method_declaration
+%type <std::unique_ptr<MethodDeclaration>> method_header
+%type <std::unique_ptr<Body>> method_body
+%type <std::vector<std::unique_ptr<ParameterDeclaration>>> parameters
+%type <std::vector<std::unique_ptr<ParameterDeclaration>>> parameter_declaration_list
+%type <std::unique_ptr<ParameterDeclaration>> parameter_declaration
+%type <std::vector<std::unique_ptr<BodyExpr>>> body_list
+%type <std::unique_ptr<BodyExpr>> body
+%type <std::unique_ptr<ConstructorDefinition>> constructor_declaration
+%type <std::unique_ptr<Stmt>> statement
+%type <std::unique_ptr<AssignmentStmt>> assignment
+%type <std::unique_ptr<WhileStmt>> while_loop
+%type <std::unique_ptr<IfStmt>> if_statement
+%type <std::unique_ptr<ReturnStmt>> return_statement
+%type <std::vector<std::unique_ptr<Expr>>> expression_list
+%type <std::unique_ptr<Expr>> expression
+%type <std::unique_ptr<PrimaryExpr>> primary
+%type <std::unique_ptr<MemberAccess>> member_access_list
+%type <std::unique_ptr<Expr>> member_access
+%type <std::unique_ptr<MethodCallExpr>> function_call
+%type <std::vector<std::unique_ptr<Expr>>> arguments
 
 %%
 
-program: class_declaration_list function_call;
+program: class_declaration_list function_call { $$ = std::make_unique<Program>(@$, std::make_unique<ProgramDeclaration>(@1, std::move($1)), std::move($2)); };
 
 class_declaration_list:
-    class_declaration_list class_declaration
-  | %empty
+    class_declaration_list class_declaration { $$ = std::move($1); $$.push_back(std::move($2)); }
+  | %empty { $$ = std::vector<ProgramDeclarationExpr>{}; }
 ;
 
 class_declaration:
-    CLASS class_name EXTENDS class_name IS member_declaration_list END
-  | CLASS class_name IS member_declaration_list END
+    CLASS class_name EXTENDS class_name IS member_declaration_list END { $$ = std::make_unique<ClassDefinition>(@$, std::make_unique<ClassDeclaration>(@2, $2.value, $4.value), std::make_unique<MemberDeclaration>(@6, std::move($6))); }
+  | CLASS class_name IS member_declaration_list END { $$ = std::make_unique<ClassDefinition>(@$, std::make_unique<ClassDeclaration>(@2, $2.value), std::make_unique<MemberDeclaration>(@4, std::move($4))); }
 ;
 
-class_name: IDENTIFIER;
+class_name: IDENTIFIER { $$ = $1; };
 
 member_declaration_list:
-    member_declaration_list member_declaration
-  | %empty
+    member_declaration_list member_declaration { $$ = std::move($1); $$.push_back(std::move($2)); }
+  | %empty { $$ = std::vector<MemberDeclarationExpr>{}; }
 ;
 
 member_declaration:
-    variable_declaration
-  | method_declaration
-  | constructor_declaration
+    variable_declaration { $$ = std::move($1); }
+  | method_declaration { $$ = std::move($1); }
+  | constructor_declaration { $$ = std::move($1); }
 ;
 
-variable_declaration: VAR IDENTIFIER COLON expression;
+variable_declaration: VAR IDENTIFIER COLON expression { $$ = std::make_unique<VariableDeclaration>(@$, $2.value, std::move($4)); };
 
 method_declaration:
-    method_header method_body
-  | method_header
+    method_header method_body { $$ = std::make_unique<MethodDefinition>(@$, std::move($1), std::move($2)); }
+  | method_header { $$ = std::move($1); }
 ;
 
 method_header:
-    METHOD IDENTIFIER parameters COLON IDENTIFIER
-  | METHOD IDENTIFIER parameters
+    METHOD IDENTIFIER parameters COLON IDENTIFIER { $$ = std::make_unique<MethodDeclaration>(@$, $2.value, std::move($3), $5.value); }
+  | METHOD IDENTIFIER parameters { $$ = std::make_unique<MethodDeclaration>(@$, $2.value, std::move($2)); }
 ;
 
 method_body:
-    IS body_list END
-  | METHOD_DEFINITION return_statement
-  | METHOD_DEFINITION expression
+    IS body_list END { $$ = std::make_unique<Body>(@2, std::move($2)); }
+  | METHOD_DEFINITION return_statement { $$ = std::make_unique<Body>(@2, std::vector<BodyExpr>{1, std::move($2)}); }
+  | METHOD_DEFINITION expression { $$ = std::make_unique<Body>(@2, std::vector<BodyExpr>{1, std::move($2)}); }
 ;
 
-parameters: LEFT_PAREN parameter_declaration_list RIGHT_PAREN;
+parameters: LEFT_PAREN parameter_declaration_list RIGHT_PAREN { $$ = std::move($2); };
 
 parameter_declaration_list:
-    parameter_declaration_list COMMA parameter_declaration
-  | %empty
+    parameter_declaration_list COMMA parameter_declaration { $$ = std::move($1); $$.push_back(std::move($3)); }
+  | %empty { $$ = std::vector<ParameterDeclarationExpr>{}; }
 ;
 
-parameter_declaration: IDENTIFIER COLON class_name;
+parameter_declaration: IDENTIFIER COLON class_name { $$ = std::make_unique<ParameterDeclarationExpr>(@$, $1.value, $3.value); };
 
 body_list:
-    body_list body
-  | %empty
+    body_list body { $$ = std::move($1); $$.push_back(std::move($2)); }
+  | %empty { $$ = std::vector<BodyExpr>{}; }
 ;
 
 body:
-    variable_declaration
-  | statement
+    variable_declaration { $$ = std::move($1); }
+  | statement { $$ = std::move($1); }
 ;
 
-constructor_declaration: THIS parameters IS body_list END;
+constructor_declaration: THIS parameters IS body_list END { $$ = std::make_unique<ConstructorDefinition>(@$, std::make_unique<ConstructorDeclaration>(@1, std::move($2)), std::make_unique<Body>(@4, std::move($4))); };
 
 statement:
-    assignment
-  | while_loop
-  | if_statement
-  | return_statement
+    assignment { $$ = std::move($1); }
+  | while_loop { $$ = std::move($1); }
+  | if_statement { $$ = std::move($1); }
+  | return_statement { $$ = std::move($1); }
 ;
 
-assignment: IDENTIFIER ASSIGNMENT_OPERATOR expression;
+assignment: IDENTIFIER ASSIGNMENT_OPERATOR expression { $$ = std::make_unique<AssignmentStmt>(@$, $1.value, std::move($3)); };
 
-while_loop: WHILE expression LOOP body_list END;
+while_loop: WHILE expression LOOP body_list END { $$ = std::make_unique<WhileStmt>(@$, std::move($2), std::move($4)); };
 
 if_statement:
-    IF expression THEN body_list ELSE body_list END;
-  | IF expression THEN body_list END
+    IF expression THEN body_list ELSE body_list END { $$ = std::make_unique<IfStmt>(@$, std::move($2), std::move($4), std::move($6)); }
+  | IF expression THEN body_list END { $$ = std::make_unique<IfStmt>(@$, std::move($2), std::move($4)); }
 ;
 
-return_statement: RETURN expression;
+return_statement: RETURN expression { $$ = std::make_unique<ReturnStmt>(@$, std::move($2)); };
 
 expression_list:
-    expression_list COMMA expression
-  | %empty
+    expression_list COMMA expression { $$ = std::move($1); $$.push_back(std::move($3)); }
+  | %empty { $$ = std::vector<Expr>{}; }
 ;
 
 expression:
-    primary
-  | member_access_list MEMBER_ACCESS_OPERATOR function_call
-  | function_call
+    primary { $$ = std::move($1); }
+  | member_access_list MEMBER_ACCESS_OPERATOR IDENTIFIER { $$ = std::make_unique<MemberAccess>(@$, std::move($1), std::make_unique<FieldAccess>(@3, $3.value)); }
+  | member_access_list MEMBER_ACCESS_OPERATOR function_call { $$ = std::make_unique<MemberAccess>(@$, std::move($1), std::move($3)); }
+  | IDENTIFIER { $$ = std::make_unique<MemberAccess>(@$, std::make_unique<ThisExpr>(@$), std::make_unique<FieldAccess>(@1, $1.value)); }
+  | function_call { $$ = std::make_unique<MemberAccess>(@$, std::make_unique<ThisExpr>(@$), std::move($1); }
 ;
 
 primary:
-    BOOLEAN_LITERAL
-  | INTEGER_LITERAL
-  | REAL_LITERAL
-  | STRING_LITERAL
-  | THIS
+    BOOLEAN_LITERAL { $$ = std::make_unique<BooleanLiteralExpr>(@$, $1.value); }
+  | INTEGER_LITERAL { $$ = std::make_unique<IntegerLiteralExpr>(@$, $1.value); }
+  | REAL_LITERAL { $$ = std::make_unique<RealLiteralExpr>(@$, $1.value); }
+  | STRING_LITERAL { $$ = std::make_unique<StringLiteralExpr>(@$, $1.value); }
+  | THIS { $$ = std::make_unique<ThisExpr>(@$); }
 ;
 
 member_access_list:
-    member_access_list MEMBER_ACCESS_OPERATOR member_access
-  | member_access
+    member_access_list MEMBER_ACCESS_OPERATOR member_access { $$ = std::make_unique<MemberAccess>(@$, std::move($1), std::move($3)); }
+  | member_access { $$ = std::move($1); }
 ;
 
 member_access:
-    primary
-  | function_call
+    primary { $$ = std::move($1); }
+  | IDENTIFIER { $$ = std::make_unique<FieldAccessExpr>(@1, $1.value); }
+  | function_call { $$ = std::move($1); }
 ;
 
-function_call: IDENTIFIER arguments;
+function_call: IDENTIFIER arguments {$$ = std::make_unique<MethodCall>(@$, $1.value, std::move($2)); };
 
-arguments: LEFT_PAREN expression_list RIGHT_PAREN;
+arguments: LEFT_PAREN expression_list RIGHT_PAREN { $$ = std::move($2) };
 
 %%
 
