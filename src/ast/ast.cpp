@@ -8,6 +8,27 @@ yy::location NodeBase::location() const noexcept {
     return location_;
 }
 
+BodyExpr::BodyExpr(yy::location l) noexcept: NodeBase(l) {}
+
+BodyExpr::~BodyExpr() {};
+
+void BodyExpr::accept(Visitor &visitor) const noexcept {
+    visitor(*this);
+}
+
+Body::Body(yy::location l, std::vector<std::unique_ptr<BodyExpr>> &&expressions) noexcept
+        : NodeBase(l), expressions_(std::move(expressions)) {}
+
+Body::~Body() {};
+
+const std::vector<std::unique_ptr<BodyExpr>> &Body::expressions() const noexcept {
+    return expressions_;
+}
+
+void Body::accept(Visitor &visitor) const noexcept {
+    visitor(*this);
+}
+
 Expr::Expr(yy::location l) noexcept: BodyExpr(l) {}
 
 Expr::~Expr() {};
@@ -89,7 +110,7 @@ void MemberAccessExpr::accept(Visitor &visitor) const noexcept {
     visitor(*this);
 }
 
-FieldAccessExpr::FieldAccessExpr(const yy::location &l, const std::string &name) noexcept: Expr(l), name_(name) {}
+FieldAccessExpr::FieldAccessExpr(const yy::location &l, const std::string &name) noexcept: MemberAccessExpr(l), name_(name) {}
 
 FieldAccessExpr::~FieldAccessExpr() {};
 
@@ -103,7 +124,7 @@ void FieldAccessExpr::accept(Visitor &visitor) const noexcept {
 
 MethodCallExpr::MethodCallExpr(const yy::location &l, const std::string &name,
                                std::vector<std::unique_ptr<Expr>> &&arguments)
-        : Expr(l), name_(name), arguments_(std::move(arguments)) {}
+        : MemberAccessExpr(l), name_(name), arguments_(std::move(arguments)) {}
 
 MethodCallExpr::~MethodCallExpr() {};
 
@@ -121,7 +142,7 @@ void MethodCallExpr::accept(Visitor &visitor) const noexcept {
 
 MemberAccess::MemberAccess(yy::location l, std::unique_ptr<Expr> &&lhs,
                            std::unique_ptr<MemberAccessExpr> &&rhs) noexcept
-        : Expr(l), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
+        : MemberAccessExpr(l), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
 MemberAccess::~MemberAccess() {};
 
@@ -134,27 +155,6 @@ const MemberAccessExpr *MemberAccess::rhs() const noexcept {
 }
 
 void MemberAccess::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
-
-BodyExpr::BodyExpr(yy::location l) noexcept: NodeBase(l) {}
-
-BodyExpr::~BodyExpr() {};
-
-void BodyExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
-
-Body::Body(yy::location l, std::vector<std::unique_ptr<BodyExpr>> &&expressions) noexcept
-        : NodeBase(l), expressions_(std::move(expressions)) {}
-
-Body::~Body() {};
-
-const std::vector<std::unique_ptr<BodyExpr>> &Body::expressions() const noexcept {
-    return expressions_;
-}
-
-void Body::accept(Visitor &visitor) const noexcept {
     visitor(*this);
 }
 

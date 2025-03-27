@@ -25,7 +25,6 @@ private:
     yy::location location_;
 };
 
-
 class BodyExpr : public NodeBase {
 public:
     void accept(Visitor &visitor) const noexcept override;
@@ -34,6 +33,20 @@ public:
 
 protected:
     BodyExpr(yy::location l) noexcept;
+};
+
+class Body : public NodeBase {
+public:
+    Body(yy::location l, std::vector<std::unique_ptr<BodyExpr>> &&expressions) noexcept;
+
+    const std::vector<std::unique_ptr<BodyExpr>> &expressions() const noexcept;
+
+    void accept(Visitor &visitor) const noexcept override;
+
+    ~Body() override;
+
+private:
+    std::vector<std::unique_ptr<BodyExpr>> expressions_;
 };
 
 class Expr : public BodyExpr {
@@ -56,7 +69,7 @@ protected:
     PrimaryExpr(yy::location l) noexcept;
 };
 
-class BooleanLiteralExpr : virtual PrimaryExpr {
+class BooleanLiteralExpr : public PrimaryExpr {
 public:
     BooleanLiteralExpr(yy::location l, bool value) noexcept;
 
@@ -70,7 +83,7 @@ private:
     bool value_;
 };
 
-class IntegerLiteralExpr : virtual PrimaryExpr {
+class IntegerLiteralExpr : public PrimaryExpr {
 public:
     IntegerLiteralExpr(yy::location l, int value) noexcept;
 
@@ -84,7 +97,7 @@ private:
     int value_;
 };
 
-class RealLiteralExpr : virtual PrimaryExpr {
+class RealLiteralExpr : public PrimaryExpr {
 public:
     RealLiteralExpr(yy::location l, double value) noexcept;
 
@@ -98,7 +111,7 @@ private:
     double value_;
 };
 
-class StringLiteralExpr : virtual PrimaryExpr {
+class StringLiteralExpr : public PrimaryExpr {
 public:
     StringLiteralExpr(const yy::location &l, const std::string &value) noexcept;
 
@@ -112,7 +125,7 @@ private:
     std::string value_;
 };
 
-class ThisExpr : virtual PrimaryExpr {
+class ThisExpr : public PrimaryExpr {
 public:
     ThisExpr(yy::location l) noexcept;
 
@@ -131,7 +144,7 @@ protected:
     MemberAccessExpr(yy::location l) noexcept;
 };
 
-class FieldAccessExpr : public Expr {
+class FieldAccessExpr : public MemberAccessExpr {
 public:
     FieldAccessExpr(const yy::location &l, const std::string &name) noexcept;
 
@@ -145,14 +158,13 @@ private:
     std::string name_;
 };
 
-class MethodCallExpr : public Expr {
+class MethodCallExpr : public MemberAccessExpr {
 public:
     MethodCallExpr(const yy::location &l, const std::string &name, std::vector<std::unique_ptr<Expr>> &&arguments);
 
     const std::string &name() const noexcept;
 
     const std::vector<std::unique_ptr<Expr>> &arguments() const noexcept;
-
 
     void accept(Visitor &visitor) const noexcept override;
 
@@ -163,7 +175,7 @@ private:
     std::vector<std::unique_ptr<Expr>> arguments_;
 };
 
-class MemberAccess : public Expr {
+class MemberAccess : public MemberAccessExpr {
 public:
     MemberAccess(yy::location l, std::unique_ptr<Expr> &&lhs, std::unique_ptr<MemberAccessExpr> &&rhs) noexcept;
 
@@ -180,24 +192,8 @@ private:
     std::unique_ptr<MemberAccessExpr> rhs_;
 };
 
-
-class Body : public NodeBase {
-public:
-    Body(yy::location l, std::vector<std::unique_ptr<BodyExpr>> &&expressions) noexcept;
-
-    const std::vector<std::unique_ptr<BodyExpr>> &expressions() const noexcept;
-
-    void accept(Visitor &visitor) const noexcept override;
-
-    ~Body() override;
-
-private:
-    std::vector<std::unique_ptr<BodyExpr>> expressions_;
-};
-
 class Stmt : public BodyExpr {
 public:
-
     void accept(Visitor &visitor) const noexcept override;
 
     ~Stmt() override;
@@ -239,8 +235,7 @@ private:
 
 class IfStmt : public Stmt {
 public:
-    IfStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&then_body,
-           std::unique_ptr<Body> &&else_body = nullptr) noexcept;
+    IfStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&then_body, std::unique_ptr<Body> &&else_body = nullptr) noexcept;
 
     const Expr *condition() const noexcept;
 
@@ -259,6 +254,7 @@ private:
 };
 
 class WhileStmt : public Stmt {
+public:
     WhileStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&loop_body) noexcept;
 
     const Expr *condition() const noexcept;
@@ -267,7 +263,6 @@ class WhileStmt : public Stmt {
 
     void accept(Visitor &visitor) const noexcept override;
 
-public:
     ~WhileStmt() override;
 
 private:
@@ -275,11 +270,8 @@ private:
     std::unique_ptr<Body> loop_body_;
 };
 
-
-
 class MemberDeclarationExpr : public NodeBase {
 public:
-
     void accept(Visitor &visitor) const noexcept override;
 
     ~MemberDeclarationExpr() override;
@@ -290,8 +282,7 @@ protected:
 
 class MemberDeclaration : public NodeBase {
 public:
-    MemberDeclaration(yy::location l,
-                      std::vector<std::unique_ptr<MemberDeclarationExpr>> &&member_declarations) noexcept;
+    MemberDeclaration(yy::location l, std::vector<std::unique_ptr<MemberDeclarationExpr>> &&member_declarations) noexcept;
 
     const std::vector<std::unique_ptr<MemberDeclarationExpr>> &member_declarations() const noexcept;
 
@@ -320,7 +311,7 @@ private:
     std::string type_;
 };
 
-class VariableDeclaration : virtual public MemberDeclarationExpr, virtual public BodyExpr {
+class VariableDeclaration : public MemberDeclarationExpr, public BodyExpr {
 public:
     VariableDeclaration(yy::location l, std::string name, std::unique_ptr<Expr> &&initializer);
 
@@ -353,8 +344,7 @@ private:
 
 class ConstructorDefinition : public MemberDeclarationExpr {
 public:
-    ConstructorDefinition(yy::location l, std::unique_ptr<ConstructorDeclaration> &&header,
-                          std::unique_ptr<Body> &&body) noexcept;
+    ConstructorDefinition(yy::location l, std::unique_ptr<ConstructorDeclaration> &&header, std::unique_ptr<Body> &&body) noexcept;
 
     const ConstructorDeclaration *header() const noexcept;
 
@@ -371,8 +361,7 @@ private:
 
 class MethodDeclaration : public MemberDeclarationExpr {
 public:
-    MethodDeclaration(yy::location l, std::string name, std::vector<std::unique_ptr<ParameterDeclaration>> &&parameters,
-                      std::string return_type = "");
+    MethodDeclaration(yy::location l, std::string name, std::vector<std::unique_ptr<ParameterDeclaration>> &&parameters, std::string return_type = "");
 
     const std::string &name() const noexcept;
 
@@ -392,8 +381,7 @@ private:
 
 class MethodDefinition : public MemberDeclarationExpr {
 public:
-    MethodDefinition(yy::location l, std::unique_ptr<MethodDeclaration> &&header,
-                     std::unique_ptr<Body> &&body) noexcept;
+    MethodDefinition(yy::location l, std::unique_ptr<MethodDeclaration> &&header, std::unique_ptr<Body> &&body) noexcept;
 
     const MethodDeclaration *header() const noexcept;
 
@@ -420,8 +408,7 @@ protected:
 
 class ProgramDeclaration : public NodeBase {
 public:
-    ProgramDeclaration(yy::location l,
-                       std::vector<std::unique_ptr<ProgramDeclarationExpr>> &&class_declarations) noexcept;
+    ProgramDeclaration(yy::location l, std::vector<std::unique_ptr<ProgramDeclarationExpr>> &&class_declarations) noexcept;
 
     const std::vector<std::unique_ptr<ProgramDeclarationExpr>> &class_declarations() const noexcept;
 
@@ -452,8 +439,7 @@ private:
 
 class ClassDefinition : public ProgramDeclarationExpr {
 public:
-    ClassDefinition(yy::location l, std::unique_ptr<ClassDeclaration> &&header,
-                    std::unique_ptr<MemberDeclaration> &&body) noexcept;
+    ClassDefinition(yy::location l, std::unique_ptr<ClassDeclaration> &&header, std::unique_ptr<MemberDeclaration> &&body) noexcept;
 
     const ClassDeclaration *header() const noexcept;
 
@@ -470,8 +456,7 @@ private:
 
 class Program : public NodeBase {
 public:
-    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations,
-            std::unique_ptr<MethodCallExpr> &&main_class) noexcept;
+    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations, std::unique_ptr<MethodCallExpr> &&main_class) noexcept;
 
     const ProgramDeclaration *class_declarations() const noexcept;
 
