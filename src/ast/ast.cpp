@@ -8,7 +8,7 @@ yy::location NodeBase::location() const noexcept {
     return location_;
 }
 
-Expr::Expr(yy::location l) noexcept: NodeBase(l) {}
+Expr::Expr(yy::location l) noexcept: BodyExpr(l) {}
 
 Expr::~Expr() {};
 

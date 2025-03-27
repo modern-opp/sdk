@@ -25,7 +25,18 @@ private:
     yy::location location_;
 };
 
-class Expr : public NodeBase {
+
+class BodyExpr : public NodeBase {
+public:
+    void accept(Visitor &visitor) const noexcept override;
+
+    ~BodyExpr() override;
+
+protected:
+    BodyExpr(yy::location l) noexcept;
+};
+
+class Expr : public BodyExpr {
 public:
     ~Expr() override;
 
@@ -45,7 +56,7 @@ protected:
     PrimaryExpr(yy::location l) noexcept;
 };
 
-class BooleanLiteralExpr : public PrimaryExpr {
+class BooleanLiteralExpr : virtual PrimaryExpr {
 public:
     BooleanLiteralExpr(yy::location l, bool value) noexcept;
 
@@ -59,7 +70,7 @@ private:
     bool value_;
 };
 
-class IntegerLiteralExpr : public PrimaryExpr {
+class IntegerLiteralExpr : virtual PrimaryExpr {
 public:
     IntegerLiteralExpr(yy::location l, int value) noexcept;
 
@@ -73,7 +84,7 @@ private:
     int value_;
 };
 
-class RealLiteralExpr : public PrimaryExpr {
+class RealLiteralExpr : virtual PrimaryExpr {
 public:
     RealLiteralExpr(yy::location l, double value) noexcept;
 
@@ -87,7 +98,7 @@ private:
     double value_;
 };
 
-class StringLiteralExpr : public PrimaryExpr {
+class StringLiteralExpr : virtual PrimaryExpr {
 public:
     StringLiteralExpr(const yy::location &l, const std::string &value) noexcept;
 
@@ -101,7 +112,7 @@ private:
     std::string value_;
 };
 
-class ThisExpr : public PrimaryExpr {
+class ThisExpr : virtual PrimaryExpr {
 public:
     ThisExpr(yy::location l) noexcept;
 
@@ -169,15 +180,6 @@ private:
     std::unique_ptr<MemberAccessExpr> rhs_;
 };
 
-class BodyExpr : public NodeBase {
-public:
-    void accept(Visitor &visitor) const noexcept override;
-
-    ~BodyExpr() override;
-
-protected:
-    BodyExpr(yy::location l) noexcept;
-};
 
 class Body : public NodeBase {
 public:
@@ -272,6 +274,8 @@ private:
     std::unique_ptr<Expr> condition_;
     std::unique_ptr<Body> loop_body_;
 };
+
+
 
 class MemberDeclarationExpr : public NodeBase {
 public:
