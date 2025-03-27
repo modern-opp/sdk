@@ -2,7 +2,6 @@
 .idea
 cmake-*
 .cache
-.github
 build
 tests
 CMakeFiles

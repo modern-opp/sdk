@@ -1,0 +1,3 @@
+[submodule "test/opp-examples"]
+	path = test/opp-examples
+	url = https://github.com/modern-opp/opp-examples.git
