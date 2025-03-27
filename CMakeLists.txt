@@ -19,13 +19,15 @@ endif ()
 
 find_package(BISON REQUIRED)
 
-bison_target(Parser src/parser.ypp ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cpp)
+bison_target(Parser src/parser/parser.ypp ${CMAKE_CURRENT_BINARY_DIR}/parser.tab.cpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories("src/include")
 
 add_executable(opp_frontend
         src/main.cpp
-        src/parser.cpp
+        src/lexer/lexer.cpp
         src/driver.cpp
+        src/ast/ast.cpp
+        src/include/ast.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
 )
