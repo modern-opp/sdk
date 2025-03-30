@@ -17,12 +17,8 @@ namespace yy {
 
         int parse(const std::string &filename);
 
-        void scan_begin();
-
-        void scan_end();
-
+    private:
         std::string file{};
-        std::ifstream fin{};
         bool trace_parsing;
         yy::location location;
     };

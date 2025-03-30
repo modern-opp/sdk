@@ -17,16 +17,16 @@
 namespace yy {
 
     class parser;
-    class driver;
+    class Scanner;
 }
 }
 
-%param { driver& drv }
+%param { Scanner& drv }
 
 %code {    
 namespace yy {
 
-    parser::symbol_type yylex(driver& drv);
+    parser::symbol_type yylex(Scanner& reader);
 
 }
 
@@ -220,7 +220,7 @@ arguments: LEFT_PAREN expression_list RIGHT_PAREN { $$ = std::move($2); };
 namespace yy {
 
 void parser::error(const location_type& loc, const std::string& msg) {
-    std::cerr << "syntax error on " << loc << "!" << std::endl;
+    std::cerr << "Error on: " << msg << " " << loc << std::endl;
 }
 
 }

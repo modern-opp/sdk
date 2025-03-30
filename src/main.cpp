@@ -5,8 +5,9 @@
 #include "parser.tab.hpp"
 #include "driver.hpp"
 
-int main() {
+int main(int argc, char **argv) {
     yy::driver driver;
-    driver.parse("test.opp");
+    std::string filename{argv[1]};
+    driver.parse(filename);
     return 0;
 }

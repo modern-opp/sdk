@@ -34,7 +34,13 @@ set(SOURCES
         src/lexer/lexer.cpp
         src/driver.cpp
         src/ast/ast.cpp
+        src/lexer/buffered_reader.cpp
+        src/lexer/scanner.cpp
+        src/uttil/token_utils.cpp
         src/include/ast.hpp
+        src/include/scanner.hpp
+        src/include/buffered_reader.hpp
+        src/include/token_utils.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
 )
 
@@ -51,6 +57,7 @@ add_executable(
         lexer_test
         test/opp_tests.cpp
         ${SOURCES}
+        src/lexer/scanner.cpp
 )
 target_link_libraries(
         lexer_test

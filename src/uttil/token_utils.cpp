@@ -1,0 +1,130 @@
+//
+// Created by Nikita Morozov on 30.03.2025.
+//
+
+#include "token_utils.hpp"
+
+
+std::string yy::token_to_string(yy::parser::symbol_kind::symbol_kind_type token) {
+    switch (token) {
+        case yy::parser::symbol_kind::S_YYEMPTY:
+            return "S_YYEMPTY";
+        case yy::parser::symbol_kind::S_YYEOF:
+            return "S_YYEOF";
+        case yy::parser::symbol_kind::S_YYerror:
+            return "S_YYerror";
+        case yy::parser::symbol_kind::S_YYUNDEF:
+            return "S_YYUNDEF";
+        case yy::parser::symbol_kind::S_IDENTIFIER:
+            return "S_IDENTIFIER";
+        case yy::parser::symbol_kind::S_BOOLEAN_LITERAL:
+            return "S_BOOLEAN_LITERAL";
+        case yy::parser::symbol_kind::S_INTEGER_LITERAL:
+            return "S_INTEGER_LITERAL";
+        case yy::parser::symbol_kind::S_REAL_LITERAL:
+            return "S_REAL_LITERAL";
+        case yy::parser::symbol_kind::S_STRING_LITERAL:
+            return "S_STRING_LITERAL";
+        case yy::parser::symbol_kind::S_CLASS:
+            return "S_CLASS";
+        case yy::parser::symbol_kind::S_EXTENDS:
+            return "S_EXTENDS";
+        case yy::parser::symbol_kind::S_IS:
+            return "S_IS";
+        case yy::parser::symbol_kind::S_END:
+            return "S_END";
+        case yy::parser::symbol_kind::S_THIS:
+            return "S_THIS";
+        case yy::parser::symbol_kind::S_METHOD:
+            return "S_METHOD";
+        case yy::parser::symbol_kind::S_LEFT_PAREN:
+            return "S_LEFT_PAREN";
+        case yy::parser::symbol_kind::S_RIGHT_PAREN:
+            return "S_RIGHT_PAREN";
+        case yy::parser::symbol_kind::S_COLON:
+            return "S_COLON";
+        case yy::parser::symbol_kind::S_COMMA:
+            return "S_COMMA";
+        case yy::parser::symbol_kind::S_METHOD_DEFINITION:
+            return "S_METHOD_DEFINITION";
+        case yy::parser::symbol_kind::S_RETURN:
+            return "S_RETURN";
+        case yy::parser::symbol_kind::S_VAR:
+            return "S_VAR";
+        case yy::parser::symbol_kind::S_ASSIGNMENT_OPERATOR:
+            return "S_ASSIGNMENT_OPERATOR";
+        case yy::parser::symbol_kind::S_MEMBER_ACCESS_OPERATOR:
+            return "S_MEMBER_ACCESS_OPERATOR";
+        case yy::parser::symbol_kind::S_IF:
+            return "S_IF";
+        case yy::parser::symbol_kind::S_THEN:
+            return "S_THEN";
+        case yy::parser::symbol_kind::S_ELSE:
+            return "S_ELSE";
+        case yy::parser::symbol_kind::S_WHILE:
+            return "S_WHILE";
+        case yy::parser::symbol_kind::S_LOOP:
+            return "S_LOOP";
+        case yy::parser::symbol_kind::S_YYACCEPT:
+            return "S_YYACCEPT";
+        case yy::parser::symbol_kind::S_program:
+            return "S_program";
+        case yy::parser::symbol_kind::S_class_declaration_list:
+            return "S_class_declaration_list";
+        case yy::parser::symbol_kind::S_class_declaration:
+            return "S_class_declaration";
+        case yy::parser::symbol_kind::S_class_name:
+            return "S_class_name";
+        case yy::parser::symbol_kind::S_member_declaration_list:
+            return "S_member_declaration_list";
+        case yy::parser::symbol_kind::S_member_declaration:
+            return "S_member_declaration";
+        case yy::parser::symbol_kind::S_variable_declaration:
+            return "S_variable_declaration";
+        case yy::parser::symbol_kind::S_method_declaration:
+            return "S_method_declaration";
+        case yy::parser::symbol_kind::S_method_header:
+            return "S_method_header";
+        case yy::parser::symbol_kind::S_method_body:
+            return "S_method_body";
+        case yy::parser::symbol_kind::S_parameters:
+            return "S_parameters";
+        case yy::parser::symbol_kind::S_parameter_declaration_list:
+            return "S_parameter_declaration_list";
+        case yy::parser::symbol_kind::S_parameter_declaration:
+            return "S_parameter_declaration";
+        case yy::parser::symbol_kind::S_body_list:
+            return "S_body_list";
+        case yy::parser::symbol_kind::S_body:
+            return "S_body";
+        case yy::parser::symbol_kind::S_constructor_declaration:
+            return "S_constructor_declaration";
+        case yy::parser::symbol_kind::S_statement:
+            return "S_statement";
+        case yy::parser::symbol_kind::S_assignment:
+            return "S_assignment";
+        case yy::parser::symbol_kind::S_while_loop:
+            return "S_while_loop";
+        case yy::parser::symbol_kind::S_if_statement:
+            return "S_if_statement";
+        case yy::parser::symbol_kind::S_return_statement:
+            return "S_return_statement";
+        case yy::parser::symbol_kind::S_expression_list:
+            return "S_expression_list";
+        case yy::parser::symbol_kind::S_expression:
+            return "S_expression";
+        case yy::parser::symbol_kind::S_primary:
+            return "S_primary";
+        case yy::parser::symbol_kind::S_member_access_list:
+            return "S_member_access_list";
+        case yy::parser::symbol_kind::S_member_access:
+            return "S_member_access";
+        case yy::parser::symbol_kind::S_function_call:
+            return "S_function_call";
+        case yy::parser::symbol_kind::S_arguments:
+            return "S_arguments";
+
+        default:
+            return "UNKNOWN_SYMBOL_KIND_TYPE";
+    }
+}
