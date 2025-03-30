@@ -14,15 +14,8 @@ namespace yy {
     class driver {
     public:
         driver();
-
         int parse(const std::string &filename);
-
-        void scan_begin();
-
-        void scan_end();
-
-        std::string file{};
-        std::ifstream fin{};
+    private:
         bool trace_parsing;
         yy::location location;
     };
