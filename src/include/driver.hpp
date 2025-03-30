@@ -14,11 +14,8 @@ namespace yy {
     class driver {
     public:
         driver();
-
         int parse(const std::string &filename);
-
     private:
-        std::string file{};
         bool trace_parsing;
         yy::location location;
     };

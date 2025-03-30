@@ -14,21 +14,27 @@ namespace yy {
     public:
         Scanner(BufferedReader reader, const std::string &filename);
 
+        parser::symbol_type get_token();
+
+    private:
+        yy::parser::symbol_type get_literal_identifier_or_keyword();
+
+        yy::parser::symbol_type get_string_literal();
+
+        yy::parser::symbol_type get_num_literal();
+
+        yy::parser::symbol_type get_special();
+
+        yy::parser::symbol_type get_identifier_or_undef();
+
         char peek() const;
 
         char advance();
-
-        const std::string &content() const;
-
-        std::string substring(size_t start, size_t delta) const;
-
-        bool eof() const;
 
         void begin_token();
 
         yy::location end_token();
 
-    private:
         yy::position begin_{};
         int lines_ = 0;
         int lineOffset_ = 0;

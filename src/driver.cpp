@@ -25,10 +25,16 @@ static std::string read_file(const std::string &filename) {
 }
 
 int yy::driver::parse(const std::string &filename) {
-    file = filename;
     yy::Scanner scanner{BufferedReader(read_file(filename)), filename};
 
     yy::parser parse(scanner);
+
+    std::cout << ":: BEGIN TOKEN SEQUENCE ::" << std::endl;
     int res = parse();
+    std::cout << ":: END TOKEN SEQUENCE ::" << std::endl;
+
+
+
+
     return res;
 }
