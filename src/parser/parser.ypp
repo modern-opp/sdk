@@ -23,6 +23,8 @@ namespace yy {
 
 %param { Scanner& drv }
 
+%parse-param { std::unique_ptr<Program>& config }
+
 %code {    
 namespace yy {
 

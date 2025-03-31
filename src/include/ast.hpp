@@ -473,7 +473,7 @@ private:
 
 class Visitor {
 public:
-    virtual ~Visitor() = 0;
+    virtual ~Visitor();
 
     virtual void operator()(const NodeBase &node_base) = 0;
 

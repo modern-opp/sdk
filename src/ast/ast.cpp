@@ -440,3 +440,7 @@ const MethodCallExpr *Program::main_class() const noexcept {
 void Program::accept(Visitor &visitor) const noexcept {
     visitor(*this);
 }
+
+Visitor::~Visitor() {
+
+}

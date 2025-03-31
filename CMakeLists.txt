@@ -36,8 +36,10 @@ set(SOURCES
         src/ast/ast.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
-        src/uttil/token_utils.cpp
+        src/util/token_utils.cpp
+        src/util/ast_utils.cpp
         src/include/ast.hpp
+        src/include/ast_utils.hpp
         src/include/scanner.hpp
         src/include/buffered_reader.hpp
         src/include/token_utils.hpp
