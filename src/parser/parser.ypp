@@ -23,7 +23,7 @@ namespace yy {
 
 %param { Scanner& drv }
 
-%parse-param { std::unique_ptr<Program>& config }
+%parse-param { std::unique_ptr<Program>& root }
 
 %code {    
 namespace yy {
@@ -98,7 +98,7 @@ extern yy::parser::symbol_type get_next_token();
 
 %%
 
-program: class_declaration_list function_call { $$ = std::make_unique<Program>(@$, std::make_unique<ProgramDeclaration>(@1, std::move($1)), std::move($2)); };
+program: class_declaration_list function_call { root = std::make_unique<Program>(@$, std::make_unique<ProgramDeclaration>(@1, std::move($1)), std::move($2)); };
 
 class_declaration_list:
     class_declaration_list class_declaration { $$ = std::move($1); $$.push_back(std::move($2)); }
