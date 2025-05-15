@@ -5,9 +5,9 @@
 #include "driver.hpp"
 #include "scanner.hpp"
 #include "buffered_reader.hpp"
-#include "ast_utils.hpp"
+#include "visitors/pretty_print_visitor.hpp"
 
-yy::driver::driver() : trace_parsing(false) {
+yy::driver::driver()  {
 
 }
 
@@ -31,17 +31,20 @@ int yy::driver::parse(const std::string &filename) {
 
     yy::parser parse(scanner, program);
 
-    std::cout << ":: BEGIN TOKEN SEQUENCE ::" << std::endl;
+    std::cout << ":: BEGIN TOKEN SEQUENCE ::" << std::endl<< std::endl;
     int parse_failure = parse();
-    std::cout << ":: END TOKEN SEQUENCE ::" << std::endl;
+    std::cout << ":: END TOKEN SEQUENCE ::" << std::endl << std::endl;
 
     if (parse_failure) {
+        std::cerr << ":: ERROR DURING PARSING ::" << std::endl;
         return parse_failure;
     }
 
     auto pretty_printer = yy::PrettyPrintVisitor();
     program->accept(pretty_printer);
+    std::cout << ":: BEGIN DUMP AST NODES  ::" << std::endl << std::endl;
     std::cout << pretty_printer.output() << std::endl;
+    std::cout << ":: END DUMP AST NODES  ::" << std::endl << std::endl;
 
     return 0;
 }

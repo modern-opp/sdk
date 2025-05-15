@@ -27,7 +27,6 @@ private:
 
 class BodyExpr : public NodeBase {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~BodyExpr() override;
 
@@ -53,7 +52,6 @@ class Expr : public BodyExpr {
 public:
     ~Expr() override;
 
-    void accept(Visitor &visitor) const noexcept override;
 
 protected:
     Expr(yy::location l) noexcept;
@@ -61,7 +59,6 @@ protected:
 
 class PrimaryExpr : public Expr {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~PrimaryExpr() override;
 
@@ -136,7 +133,6 @@ public:
 
 class MemberAccessExpr : public Expr {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~MemberAccessExpr() override;
 
@@ -194,7 +190,6 @@ private:
 
 class Stmt : public BodyExpr {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~Stmt() override;
 
@@ -272,7 +267,6 @@ private:
 
 class MemberDeclarationExpr : public NodeBase {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~MemberDeclarationExpr() override;
 
@@ -398,7 +392,6 @@ private:
 
 class ProgramDeclarationExpr : public NodeBase {
 public:
-    void accept(Visitor &visitor) const noexcept override;
 
     ~ProgramDeclarationExpr() override;
 
@@ -456,11 +449,11 @@ private:
 
 class Program : public NodeBase {
 public:
-    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations, std::unique_ptr<MethodCallExpr> &&main_class) noexcept;
+    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations, std::unique_ptr<Expr> &&main_class) noexcept;
 
     const ProgramDeclaration *class_declarations() const noexcept;
 
-    const MethodCallExpr *main_class() const noexcept;
+    const Expr *main_class() const noexcept;
 
     void accept(Visitor &visitor) const noexcept override;
 
@@ -468,18 +461,12 @@ public:
 
 private:
     std::unique_ptr<ProgramDeclaration> class_declarations_;
-    std::unique_ptr<MethodCallExpr> main_class_;
+    std::unique_ptr<Expr> main_class_;
 };
 
 class Visitor {
 public:
     virtual ~Visitor();
-
-    virtual void operator()(const NodeBase &node_base) = 0;
-
-    virtual void operator()(const Expr &expr) = 0;
-
-    virtual void operator()(const PrimaryExpr &primary_expr) = 0;
 
     virtual void operator()(const BooleanLiteralExpr &boolean_literal_expr) = 0;
 
@@ -491,19 +478,13 @@ public:
 
     virtual void operator()(const ThisExpr &this_expr) = 0;
 
-    virtual void operator()(const MemberAccessExpr &member_access_expr) = 0;
-
     virtual void operator()(const FieldAccessExpr &field_access_expr) = 0;
 
     virtual void operator()(const MethodCallExpr &method_call_expr) = 0;
 
     virtual void operator()(const MemberAccess &member_access) = 0;
 
-    virtual void operator()(const BodyExpr &body_expr) = 0;
-
     virtual void operator()(const Body &body) = 0;
-
-    virtual void operator()(const Stmt &stmt) = 0;
 
     virtual void operator()(const ReturnStmt &return_stmt) = 0;
 
@@ -512,8 +493,6 @@ public:
     virtual void operator()(const IfStmt &if_stmt) = 0;
 
     virtual void operator()(const WhileStmt &while_stmt) = 0;
-
-    virtual void operator()(const MemberDeclarationExpr &member_declaration_expr) = 0;
 
     virtual void operator()(const MemberDeclaration &member_declaration) = 0;
 
@@ -528,8 +507,6 @@ public:
     virtual void operator()(const MethodDeclaration &method_declaration) = 0;
 
     virtual void operator()(const MethodDefinition &method_definition) = 0;
-
-    virtual void operator()(const ProgramDeclarationExpr &program_declaration_expr) = 0;
 
     virtual void operator()(const ProgramDeclaration &program_declaration) = 0;
 

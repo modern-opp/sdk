@@ -5,18 +5,19 @@
 #ifndef OPP_FRONTEND_AST_UTIL_HPP
 #define OPP_FRONTEND_AST_UTIL_HPP
 
-
-#include "ast.hpp"
 #include <string>
 
+#include "ast.hpp"
+#include "recursive_visitor.hpp"
+
+
 namespace yy {
-    class PrettyPrintVisitor : public Visitor {
+
+    class PrettyPrintVisitor : public  RecursiveVisitor {
     public:
-        void operator()(const NodeBase &node_base) override;
+        PrettyPrintVisitor() : RecursiveVisitor() {
 
-        void operator()(const Expr &expr) override;
-
-        void operator()(const PrimaryExpr &primary_expr) override;
+        }
 
         void operator()(const BooleanLiteralExpr &boolean_literal_expr) override;
 
@@ -28,19 +29,13 @@ namespace yy {
 
         void operator()(const ThisExpr &this_expr) override;
 
-        void operator()(const MemberAccessExpr &member_access_expr) override;
-
         void operator()(const FieldAccessExpr &field_access_expr) override;
 
         void operator()(const MethodCallExpr &method_call_expr) override;
 
         void operator()(const MemberAccess &member_access) override;
 
-        void operator()(const BodyExpr &body_expr) override;
-
         void operator()(const Body &body) override;
-
-        void operator()(const Stmt &stmt) override;
 
         void operator()(const ReturnStmt &return_stmt) override;
 
@@ -49,8 +44,6 @@ namespace yy {
         void operator()(const IfStmt &if_stmt) override;
 
         void operator()(const WhileStmt &while_stmt) override;
-
-        void operator()(const MemberDeclarationExpr &member_declaration_expr) override;
 
         void operator()(const MemberDeclaration &member_declaration) override;
 
@@ -66,8 +59,6 @@ namespace yy {
 
         void operator()(const MethodDefinition &method_definition) override;
 
-        void operator()(const ProgramDeclarationExpr &program_declaration_expr) override;
-
         void operator()(const ProgramDeclaration &program_declaration) override;
 
         void operator()(const ClassDeclaration &class_declaration) override;
@@ -78,10 +69,13 @@ namespace yy {
 
         std::string output() const;
 
-        ~PrettyPrintVisitor() override;
+        ~PrettyPrintVisitor() override {
+
+        }
 
     private:
         void print_ident();
+        void print_close_ident();
 
         size_t depth_{};
         std::string output_;

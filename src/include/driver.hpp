@@ -16,7 +16,6 @@ namespace yy {
         driver();
         int parse(const std::string &filename);
     private:
-        bool trace_parsing;
         yy::location location;
     };
 }

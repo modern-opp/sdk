@@ -98,7 +98,7 @@ extern yy::parser::symbol_type get_next_token();
 
 %%
 
-program: class_declaration_list function_call { root = std::make_unique<Program>(@$, std::make_unique<ProgramDeclaration>(@1, std::move($1)), std::move($2)); };
+program: class_declaration_list expression { root = std::make_unique<Program>(@$, std::make_unique<ProgramDeclaration>(@1, std::move($1)), std::move($2)); };
 
 class_declaration_list:
     class_declaration_list class_declaration { $$ = std::move($1); $$.push_back(std::move($2)); }
@@ -183,6 +183,7 @@ return_statement: RETURN expression { $$ = std::make_unique<ReturnStmt>(@$, std:
 
 expression_list:
     expression_list COMMA expression { $$ = std::move($1); $$.push_back(std::move($3)); }
+  | expression { $$.push_back(std::move($1)); }
   | %empty { $$ = std::vector<std::unique_ptr<Expr>>{}; }
 ;
 

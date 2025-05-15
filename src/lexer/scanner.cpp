@@ -161,8 +161,8 @@ yy::parser::symbol_type yy::Scanner::get_identifier_or_undef() {
 yy::Scanner::Scanner(
         yy::BufferedReader reader,
         const std::__1::basic_string<char> &filename
-) : reader_(std::move(reader)),
-    filename_(filename) {}
+) : filename_(filename), reader_(std::move(reader))
+     {}
 
 char yy::Scanner::peek() const {
     return reader_.peek();

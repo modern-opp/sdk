@@ -2,7 +2,7 @@
 
 NodeBase::NodeBase(yy::location l) noexcept: location_(l) {}
 
-NodeBase::~NodeBase() {};
+NodeBase::~NodeBase() {}
 
 yy::location NodeBase::location() const noexcept {
     return location_;
@@ -10,16 +10,12 @@ yy::location NodeBase::location() const noexcept {
 
 BodyExpr::BodyExpr(yy::location l) noexcept: NodeBase(l) {}
 
-BodyExpr::~BodyExpr() {};
-
-void BodyExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+BodyExpr::~BodyExpr() {}
 
 Body::Body(yy::location l, std::vector<std::unique_ptr<BodyExpr>> &&expressions) noexcept
         : NodeBase(l), expressions_(std::move(expressions)) {}
 
-Body::~Body() {};
+Body::~Body() {}
 
 const std::vector<std::unique_ptr<BodyExpr>> &Body::expressions() const noexcept {
     return expressions_;
@@ -31,23 +27,15 @@ void Body::accept(Visitor &visitor) const noexcept {
 
 Expr::Expr(yy::location l) noexcept: BodyExpr(l) {}
 
-Expr::~Expr() {};
-
-void Expr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+Expr::~Expr() {}
 
 PrimaryExpr::PrimaryExpr(yy::location l) noexcept: Expr(l) {}
 
-PrimaryExpr::~PrimaryExpr() {};
-
-void PrimaryExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+PrimaryExpr::~PrimaryExpr() {}
 
 BooleanLiteralExpr::BooleanLiteralExpr(yy::location l, bool value) noexcept: PrimaryExpr(l), value_(value) {}
 
-BooleanLiteralExpr::~BooleanLiteralExpr() {};
+BooleanLiteralExpr::~BooleanLiteralExpr() {}
 
 bool BooleanLiteralExpr::value() const noexcept {
     return value_;
@@ -59,7 +47,7 @@ void BooleanLiteralExpr::accept(Visitor &visitor) const noexcept {
 
 IntegerLiteralExpr::IntegerLiteralExpr(yy::location l, int value) noexcept: PrimaryExpr(l), value_(value) {}
 
-IntegerLiteralExpr::~IntegerLiteralExpr() {};
+IntegerLiteralExpr::~IntegerLiteralExpr() {}
 
 int IntegerLiteralExpr::value() const {
     return value_;
@@ -71,7 +59,7 @@ void IntegerLiteralExpr::accept(Visitor &visitor) const noexcept {
 
 RealLiteralExpr::RealLiteralExpr(yy::location l, double value) noexcept: PrimaryExpr(l), value_(value) {}
 
-RealLiteralExpr::~RealLiteralExpr() {};
+RealLiteralExpr::~RealLiteralExpr() {}
 
 double RealLiteralExpr::value() const noexcept {
     return value_;
@@ -84,7 +72,7 @@ void RealLiteralExpr::accept(Visitor &visitor) const noexcept {
 StringLiteralExpr::StringLiteralExpr(const yy::location &l, const std::string &value) noexcept: PrimaryExpr(l),
                                                                                                 value_(value) {}
 
-StringLiteralExpr::~StringLiteralExpr() {};
+StringLiteralExpr::~StringLiteralExpr() {}
 
 const std::string &StringLiteralExpr::value() const {
     return value_;
@@ -96,7 +84,7 @@ void StringLiteralExpr::accept(Visitor &visitor) const noexcept {
 
 ThisExpr::ThisExpr(yy::location l) noexcept: PrimaryExpr(l) {}
 
-ThisExpr::~ThisExpr() {};
+ThisExpr::~ThisExpr() {}
 
 void ThisExpr::accept(Visitor &visitor) const noexcept {
     visitor(*this);
@@ -104,15 +92,11 @@ void ThisExpr::accept(Visitor &visitor) const noexcept {
 
 MemberAccessExpr::MemberAccessExpr(yy::location l) noexcept: Expr(l) {}
 
-MemberAccessExpr::~MemberAccessExpr() {};
-
-void MemberAccessExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+MemberAccessExpr::~MemberAccessExpr() {}
 
 FieldAccessExpr::FieldAccessExpr(const yy::location &l, const std::string &name) noexcept: MemberAccessExpr(l), name_(name) {}
 
-FieldAccessExpr::~FieldAccessExpr() {};
+FieldAccessExpr::~FieldAccessExpr() {}
 
 const std::string &FieldAccessExpr::name() const {
     return name_;
@@ -126,7 +110,7 @@ MethodCallExpr::MethodCallExpr(const yy::location &l, const std::string &name,
                                std::vector<std::unique_ptr<Expr>> &&arguments)
         : MemberAccessExpr(l), name_(name), arguments_(std::move(arguments)) {}
 
-MethodCallExpr::~MethodCallExpr() {};
+MethodCallExpr::~MethodCallExpr() {}
 
 const std::string &MethodCallExpr::name() const noexcept {
     return name_;
@@ -144,7 +128,7 @@ MemberAccess::MemberAccess(yy::location l, std::unique_ptr<Expr> &&lhs,
                            std::unique_ptr<MemberAccessExpr> &&rhs) noexcept
         : MemberAccessExpr(l), lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
-MemberAccess::~MemberAccess() {};
+MemberAccess::~MemberAccess() {}
 
 const Expr *MemberAccess::lhs() const noexcept {
     return lhs_.get();
@@ -160,16 +144,12 @@ void MemberAccess::accept(Visitor &visitor) const noexcept {
 
 Stmt::Stmt(yy::location l) noexcept: BodyExpr(l) {}
 
-Stmt::~Stmt() {};
-
-void Stmt::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+Stmt::~Stmt() {}
 
 ReturnStmt::ReturnStmt(yy::location l, std::unique_ptr<Expr> &&expression) noexcept
         : Stmt(l), expression_(std::move(expression)) {}
 
-ReturnStmt::~ReturnStmt() {};
+ReturnStmt::~ReturnStmt() {}
 
 const Expr *ReturnStmt::expression() const noexcept {
     return expression_.get();
@@ -182,7 +162,7 @@ void ReturnStmt::accept(Visitor &visitor) const noexcept {
 AssignmentStmt::AssignmentStmt(yy::location l, std::string name, std::unique_ptr<Expr> &&expression)
         : Stmt(l), name_(std::move(name)), expression_(std::move(expression)) {}
 
-AssignmentStmt::~AssignmentStmt() {};
+AssignmentStmt::~AssignmentStmt() {}
 
 const std::string &AssignmentStmt::name() const noexcept {
     return name_;
@@ -201,7 +181,7 @@ IfStmt::IfStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_pt
         : Stmt(l), condition_(std::move(condition)), then_body_(std::move(then_body)),
           else_body_(std::move(else_body)) {}
 
-IfStmt::~IfStmt() {};
+IfStmt::~IfStmt() {}
 
 const Expr *IfStmt::condition() const noexcept {
     return condition_.get();
@@ -222,7 +202,7 @@ void IfStmt::accept(Visitor &visitor) const noexcept {
 WhileStmt::WhileStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&loop_body) noexcept
         : Stmt(l), condition_(std::move(condition)), loop_body_(std::move(loop_body)) {}
 
-WhileStmt::~WhileStmt() {};
+WhileStmt::~WhileStmt() {}
 
 const Expr *WhileStmt::condition() const noexcept {
     return condition_.get();
@@ -238,17 +218,13 @@ void WhileStmt::accept(Visitor &visitor) const noexcept {
 
 MemberDeclarationExpr::MemberDeclarationExpr(yy::location l) noexcept: NodeBase(l) {}
 
-MemberDeclarationExpr::~MemberDeclarationExpr() {};
-
-void MemberDeclarationExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+MemberDeclarationExpr::~MemberDeclarationExpr() {}
 
 MemberDeclaration::MemberDeclaration(yy::location l,
                                      std::vector<std::unique_ptr<MemberDeclarationExpr>> &&member_declarations) noexcept
         : NodeBase(l), member_declarations_(std::move(member_declarations)) {}
 
-MemberDeclaration::~MemberDeclaration() {};
+MemberDeclaration::~MemberDeclaration() {}
 
 const std::vector<std::unique_ptr<MemberDeclarationExpr>> &MemberDeclaration::member_declarations() const noexcept {
     return member_declarations_;
@@ -261,7 +237,7 @@ void MemberDeclaration::accept(Visitor &visitor) const noexcept {
 ParameterDeclaration::ParameterDeclaration(yy::location l, std::string name, std::string type)
         : NodeBase(l), name_(std::move(name)), type_(std::move(type)) {}
 
-ParameterDeclaration::~ParameterDeclaration() {};
+ParameterDeclaration::~ParameterDeclaration() {}
 
 const std::string &ParameterDeclaration::name() const noexcept {
     return name_;
@@ -278,7 +254,7 @@ void ParameterDeclaration::accept(Visitor &visitor) const noexcept {
 VariableDeclaration::VariableDeclaration(yy::location l, std::string name, std::unique_ptr<Expr> &&initializer)
         : MemberDeclarationExpr(l), BodyExpr(l), name_(std::move(name)), initializer_(std::move(initializer)) {}
 
-VariableDeclaration::~VariableDeclaration() {};
+VariableDeclaration::~VariableDeclaration() {}
 
 const std::string &VariableDeclaration::name() const noexcept {
     return name_;
@@ -296,7 +272,7 @@ ConstructorDeclaration::ConstructorDeclaration(yy::location l,
                                                std::vector<std::unique_ptr<ParameterDeclaration>> &&parameters) noexcept
         : MemberDeclarationExpr(l), parameters_(std::move(parameters)) {}
 
-ConstructorDeclaration::~ConstructorDeclaration() {};
+ConstructorDeclaration::~ConstructorDeclaration() {}
 
 const std::vector<std::unique_ptr<ParameterDeclaration>> &ConstructorDeclaration::parameters() const noexcept {
     return parameters_;
@@ -310,7 +286,7 @@ ConstructorDefinition::ConstructorDefinition(yy::location l, std::unique_ptr<Con
                                              std::unique_ptr<Body> &&body) noexcept
         : MemberDeclarationExpr(l), header_(std::move(header)), body_(std::move(body)) {}
 
-ConstructorDefinition::~ConstructorDefinition() {};
+ConstructorDefinition::~ConstructorDefinition() {}
 
 const ConstructorDeclaration *ConstructorDefinition::header() const noexcept {
     return header_.get();
@@ -330,7 +306,7 @@ MethodDeclaration::MethodDeclaration(yy::location l, std::string name,
         : MemberDeclarationExpr(l), name_(std::move(name)), parameters_(std::move(parameters)),
           return_type_(std::move(return_type)) {}
 
-MethodDeclaration::~MethodDeclaration() {};
+MethodDeclaration::~MethodDeclaration() {}
 
 const std::string &MethodDeclaration::name() const noexcept {
     return name_;
@@ -352,7 +328,7 @@ MethodDefinition::MethodDefinition(yy::location l, std::unique_ptr<MethodDeclara
                                    std::unique_ptr<Body> &&body) noexcept
         : MemberDeclarationExpr(l), header_(std::move(header)), body_(std::move(body)) {}
 
-MethodDefinition::~MethodDefinition() {};
+MethodDefinition::~MethodDefinition() {}
 
 const MethodDeclaration *MethodDefinition::header() const noexcept {
     return header_.get();
@@ -368,17 +344,13 @@ void MethodDefinition::accept(Visitor &visitor) const noexcept {
 
 ProgramDeclarationExpr::ProgramDeclarationExpr(yy::location l) noexcept: NodeBase(l) {}
 
-ProgramDeclarationExpr::~ProgramDeclarationExpr() {};
-
-void ProgramDeclarationExpr::accept(Visitor &visitor) const noexcept {
-    visitor(*this);
-}
+ProgramDeclarationExpr::~ProgramDeclarationExpr() {}
 
 ProgramDeclaration::ProgramDeclaration(yy::location l,
                                        std::vector<std::unique_ptr<ProgramDeclarationExpr>> &&class_declarations) noexcept
         : NodeBase(l), class_declarations_(std::move(class_declarations)) {}
 
-ProgramDeclaration::~ProgramDeclaration() {};
+ProgramDeclaration::~ProgramDeclaration() {}
 
 const std::vector<std::unique_ptr<ProgramDeclarationExpr>> &ProgramDeclaration::class_declarations() const noexcept {
     return class_declarations_;
@@ -391,7 +363,7 @@ void ProgramDeclaration::accept(Visitor &visitor) const noexcept {
 ClassDeclaration::ClassDeclaration(yy::location l, std::string name, std::string parent)
         : ProgramDeclarationExpr(l), name_(std::move(name)), parent_(std::move(parent)) {}
 
-ClassDeclaration::~ClassDeclaration() {};
+ClassDeclaration::~ClassDeclaration() {}
 
 const std::string &ClassDeclaration::name() const noexcept {
     return name_;
@@ -409,7 +381,7 @@ ClassDefinition::ClassDefinition(yy::location l, std::unique_ptr<ClassDeclaratio
                                  std::unique_ptr<MemberDeclaration> &&body) noexcept
         : ProgramDeclarationExpr(l), header_(std::move(header)), body_(std::move(body)) {}
 
-ClassDefinition::~ClassDefinition() {};
+ClassDefinition::~ClassDefinition() {}
 
 const ClassDeclaration *ClassDefinition::header() const noexcept {
     return header_.get();
@@ -424,16 +396,16 @@ void ClassDefinition::accept(Visitor &visitor) const noexcept {
 }
 
 Program::Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations,
-                 std::unique_ptr<MethodCallExpr> &&main_class) noexcept
+                 std::unique_ptr<Expr> &&main_class) noexcept
         : NodeBase(l), class_declarations_(std::move(class_declarations)), main_class_(std::move(main_class)) {}
 
-Program::~Program() {};
+Program::~Program() {}
 
 const ProgramDeclaration *Program::class_declarations() const noexcept {
     return class_declarations_.get();
 }
 
-const MethodCallExpr *Program::main_class() const noexcept {
+const Expr *Program::main_class() const noexcept {
     return main_class_.get();
 }
 
