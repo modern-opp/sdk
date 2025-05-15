@@ -17,6 +17,12 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     endif ()
 endif ()
 
+#if(MSVC)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # CMake already contains W3 in its flags
+#else()
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -v -O0 -g -fsanitize=address -fno-omit-frame-pointer")
+#endif()
+
 find_package(BISON REQUIRED)
 
 include(FetchContent)
@@ -36,7 +42,11 @@ set(SOURCES
         src/ast/ast.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
-        src/uttil/token_utils.cpp
+        src/util/token_utils.cpp
+        src/util/pretty_print_visitor.cpp
+        src/util/recursive_visitor.cpp
+        src/include/visitors/pretty_print_visitor.hpp
+        src/include/visitors/recursive_visitor.hpp
         src/include/ast.hpp
         src/include/scanner.hpp
         src/include/buffered_reader.hpp

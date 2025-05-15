@@ -41,6 +41,6 @@ namespace yy {
         std::string filename_;
         BufferedReader reader_;
     };
-};
+}
 
 #endif //OPP_FRONTEND_SCANNER_HPP
