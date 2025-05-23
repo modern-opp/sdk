@@ -8,18 +8,24 @@
 #include <utility>
 #include <vector>
 
+class VisitorBase;
+
+template <class T>
 class Visitor;
 
 class NodeBase {
 public:
     virtual ~NodeBase() = 0;
 
-    yy::location location() const noexcept;
+    template <class T>
+    T accept(Visitor<T> &visitor) const noexcept;
 
-    virtual void accept(Visitor &visitor) const noexcept = 0;
+    yy::location location() const noexcept;
 
 protected:
     NodeBase(yy::location l) noexcept;
+
+    virtual void do_accept(VisitorBase &visitor) const noexcept = 0;
 
 private:
     yy::location location_;
@@ -40,12 +46,12 @@ public:
 
     const std::vector<std::unique_ptr<BodyExpr>> &expressions() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~Body() override;
 
 private:
     std::vector<std::unique_ptr<BodyExpr>> expressions_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class Expr : public BodyExpr {
@@ -72,12 +78,12 @@ public:
 
     bool value() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~BooleanLiteralExpr() override;
 
 private:
     bool value_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class IntegerLiteralExpr : public PrimaryExpr {
@@ -86,12 +92,12 @@ public:
 
     int value() const;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~IntegerLiteralExpr() override;
 
 private:
     int value_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class RealLiteralExpr : public PrimaryExpr {
@@ -100,12 +106,12 @@ public:
 
     double value() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~RealLiteralExpr() override;
 
 private:
     double value_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class StringLiteralExpr : public PrimaryExpr {
@@ -114,21 +120,22 @@ public:
 
     const std::string &value() const;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~StringLiteralExpr() override;
 
 private:
     std::string value_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ThisExpr : public PrimaryExpr {
 public:
     ThisExpr(yy::location l) noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ThisExpr() override;
+
+private:
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MemberAccessExpr : public Expr {
@@ -146,12 +153,12 @@ public:
 
     const std::string &name() const;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~FieldAccessExpr() override;
 
 private:
     std::string name_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MethodCallExpr : public MemberAccessExpr {
@@ -162,13 +169,13 @@ public:
 
     const std::vector<std::unique_ptr<Expr>> &arguments() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~MethodCallExpr() override;
 
 private:
     std::string name_;
     std::vector<std::unique_ptr<Expr>> arguments_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MemberAccess : public MemberAccessExpr {
@@ -179,13 +186,13 @@ public:
 
     const MemberAccessExpr *rhs() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~MemberAccess() override;
 
 private:
     std::unique_ptr<Expr> lhs_;
     std::unique_ptr<MemberAccessExpr> rhs_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class Stmt : public BodyExpr {
@@ -203,12 +210,12 @@ public:
 
     const Expr *expression() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ReturnStmt() override;
 
 private:
     std::unique_ptr<Expr> expression_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class AssignmentStmt : public Stmt {
@@ -219,13 +226,13 @@ public:
 
     const Expr *expression() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~AssignmentStmt() override;
 
 private:
     std::string name_;
     std::unique_ptr<Expr> expression_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class IfStmt : public Stmt {
@@ -238,14 +245,14 @@ public:
 
     const Body *else_body() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~IfStmt() override;
 
 private:
     std::unique_ptr<Expr> condition_;
     std::unique_ptr<Body> then_body_;
     std::unique_ptr<Body> else_body_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class WhileStmt : public Stmt {
@@ -256,13 +263,13 @@ public:
 
     const Body *loop_body() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~WhileStmt() override;
 
 private:
     std::unique_ptr<Expr> condition_;
     std::unique_ptr<Body> loop_body_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MemberDeclarationExpr : public NodeBase {
@@ -280,12 +287,12 @@ public:
 
     const std::vector<std::unique_ptr<MemberDeclarationExpr>> &member_declarations() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~MemberDeclaration() override;
 
 private:
     std::vector<std::unique_ptr<MemberDeclarationExpr>> member_declarations_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ParameterDeclaration : public NodeBase {
@@ -296,13 +303,13 @@ public:
 
     const std::string &type() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ParameterDeclaration() override;
 
 private:
     std::string name_;
     std::string type_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class VariableDeclaration : public MemberDeclarationExpr, public BodyExpr {
@@ -313,13 +320,13 @@ public:
 
     const Expr *initializer() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~VariableDeclaration() override;
 
 private:
     std::string name_;
     std::unique_ptr<Expr> initializer_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ConstructorDeclaration : public MemberDeclarationExpr {
@@ -328,12 +335,12 @@ public:
 
     const std::vector<std::unique_ptr<ParameterDeclaration>> &parameters() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ConstructorDeclaration() override;
 
 private:
     std::vector<std::unique_ptr<ParameterDeclaration>> parameters_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ConstructorDefinition : public MemberDeclarationExpr {
@@ -344,13 +351,13 @@ public:
 
     const Body *body() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ConstructorDefinition() override;
 
 private:
     std::unique_ptr<ConstructorDeclaration> header_;
     std::unique_ptr<Body> body_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MethodDeclaration : public MemberDeclarationExpr {
@@ -363,14 +370,14 @@ public:
 
     const std::string &return_type() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~MethodDeclaration() override;
 
 private:
     std::string name_;
     std::vector<std::unique_ptr<ParameterDeclaration>> parameters_;
     std::string return_type_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class MethodDefinition : public MemberDeclarationExpr {
@@ -381,13 +388,13 @@ public:
 
     const Body *body() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~MethodDefinition() override;
 
 private:
     std::unique_ptr<MethodDeclaration> header_;
     std::unique_ptr<Body> body_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ProgramDeclarationExpr : public NodeBase {
@@ -405,12 +412,12 @@ public:
 
     const std::vector<std::unique_ptr<ProgramDeclarationExpr>> &class_declarations() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ProgramDeclaration() override;
 
 private:
     std::vector<std::unique_ptr<ProgramDeclarationExpr>> class_declarations_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ClassDeclaration : public ProgramDeclarationExpr {
@@ -421,13 +428,13 @@ public:
 
     const std::string &parent() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ClassDeclaration() override;
 
 private:
     std::string name_;
     std::string parent_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class ClassDefinition : public ProgramDeclarationExpr {
@@ -438,13 +445,13 @@ public:
 
     const MemberDeclaration *body() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~ClassDefinition() override;
 
 private:
     std::unique_ptr<ClassDeclaration> header_;
     std::unique_ptr<MemberDeclaration> body_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
 class Program : public NodeBase {
@@ -455,19 +462,17 @@ public:
 
     const Expr *main_class() const noexcept;
 
-    void accept(Visitor &visitor) const noexcept override;
-
     ~Program() override;
 
 private:
     std::unique_ptr<ProgramDeclaration> class_declarations_;
     std::unique_ptr<Expr> main_class_;
+
+    void do_accept(VisitorBase &visitor) const noexcept override;
 };
 
-class Visitor {
+class VisitorBase {
 public:
-    virtual ~Visitor();
-
     virtual void operator()(const BooleanLiteralExpr &boolean_literal_expr) = 0;
 
     virtual void operator()(const IntegerLiteralExpr &integer_literal_expr) = 0;
@@ -515,6 +520,41 @@ public:
     virtual void operator()(const ClassDefinition &class_definition) = 0;
 
     virtual void operator()(const Program &program) = 0;
+
+    virtual ~VisitorBase();
 };
+
+template <class T>
+class Visitor : public VisitorBase {
+public:
+    T result() const;
+
+    virtual ~Visitor();
+
+private:
+    T result_;
+};
+
+template <>
+class Visitor<void> : public VisitorBase {
+public:
+    void result() const;
+
+    virtual ~Visitor();
+};
+
+template <class T>
+T NodeBase::accept(Visitor<T> &visitor) const noexcept {
+    do_accept(visitor);
+    return visitor.result();
+}
+
+template <class T>
+Visitor<T>::~Visitor() {}
+
+template <class T>
+T Visitor<T>::result() const {
+    return result_;
+}
 
 #endif

@@ -21,7 +21,7 @@ const std::vector<std::unique_ptr<BodyExpr>> &Body::expressions() const noexcept
     return expressions_;
 }
 
-void Body::accept(Visitor &visitor) const noexcept {
+void Body::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -41,7 +41,7 @@ bool BooleanLiteralExpr::value() const noexcept {
     return value_;
 }
 
-void BooleanLiteralExpr::accept(Visitor &visitor) const noexcept {
+void BooleanLiteralExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -53,7 +53,7 @@ int IntegerLiteralExpr::value() const {
     return value_;
 }
 
-void IntegerLiteralExpr::accept(Visitor &visitor) const noexcept {
+void IntegerLiteralExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -65,7 +65,7 @@ double RealLiteralExpr::value() const noexcept {
     return value_;
 }
 
-void RealLiteralExpr::accept(Visitor &visitor) const noexcept {
+void RealLiteralExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -78,7 +78,7 @@ const std::string &StringLiteralExpr::value() const {
     return value_;
 }
 
-void StringLiteralExpr::accept(Visitor &visitor) const noexcept {
+void StringLiteralExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -86,7 +86,7 @@ ThisExpr::ThisExpr(yy::location l) noexcept: PrimaryExpr(l) {}
 
 ThisExpr::~ThisExpr() {}
 
-void ThisExpr::accept(Visitor &visitor) const noexcept {
+void ThisExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -102,7 +102,7 @@ const std::string &FieldAccessExpr::name() const {
     return name_;
 }
 
-void FieldAccessExpr::accept(Visitor &visitor) const noexcept {
+void FieldAccessExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -120,7 +120,7 @@ const std::vector<std::unique_ptr<Expr>> &MethodCallExpr::arguments() const noex
     return arguments_;
 }
 
-void MethodCallExpr::accept(Visitor &visitor) const noexcept {
+void MethodCallExpr::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -138,7 +138,7 @@ const MemberAccessExpr *MemberAccess::rhs() const noexcept {
     return rhs_.get();
 }
 
-void MemberAccess::accept(Visitor &visitor) const noexcept {
+void MemberAccess::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -155,7 +155,7 @@ const Expr *ReturnStmt::expression() const noexcept {
     return expression_.get();
 }
 
-void ReturnStmt::accept(Visitor &visitor) const noexcept {
+void ReturnStmt::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -172,7 +172,7 @@ const Expr *AssignmentStmt::expression() const noexcept {
     return expression_.get();
 }
 
-void AssignmentStmt::accept(Visitor &visitor) const noexcept {
+void AssignmentStmt::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -195,7 +195,7 @@ const Body *IfStmt::else_body() const noexcept {
     return else_body_.get();
 }
 
-void IfStmt::accept(Visitor &visitor) const noexcept {
+void IfStmt::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -212,7 +212,7 @@ const Body *WhileStmt::loop_body() const noexcept {
     return loop_body_.get();
 }
 
-void WhileStmt::accept(Visitor &visitor) const noexcept {
+void WhileStmt::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -230,7 +230,7 @@ const std::vector<std::unique_ptr<MemberDeclarationExpr>> &MemberDeclaration::me
     return member_declarations_;
 }
 
-void MemberDeclaration::accept(Visitor &visitor) const noexcept {
+void MemberDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -247,7 +247,7 @@ const std::string &ParameterDeclaration::type() const noexcept {
     return type_;
 }
 
-void ParameterDeclaration::accept(Visitor &visitor) const noexcept {
+void ParameterDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -264,7 +264,7 @@ const Expr *VariableDeclaration::initializer() const noexcept {
     return initializer_.get();
 }
 
-void VariableDeclaration::accept(Visitor &visitor) const noexcept {
+void VariableDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -278,7 +278,7 @@ const std::vector<std::unique_ptr<ParameterDeclaration>> &ConstructorDeclaration
     return parameters_;
 }
 
-void ConstructorDeclaration::accept(Visitor &visitor) const noexcept {
+void ConstructorDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -296,7 +296,7 @@ const Body *ConstructorDefinition::body() const noexcept {
     return body_.get();
 }
 
-void ConstructorDefinition::accept(Visitor &visitor) const noexcept {
+void ConstructorDefinition::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -320,7 +320,7 @@ const std::string &MethodDeclaration::return_type() const noexcept {
     return return_type_;
 }
 
-void MethodDeclaration::accept(Visitor &visitor) const noexcept {
+void MethodDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -338,7 +338,7 @@ const Body *MethodDefinition::body() const noexcept {
     return body_.get();
 }
 
-void MethodDefinition::accept(Visitor &visitor) const noexcept {
+void MethodDefinition::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -356,7 +356,7 @@ const std::vector<std::unique_ptr<ProgramDeclarationExpr>> &ProgramDeclaration::
     return class_declarations_;
 }
 
-void ProgramDeclaration::accept(Visitor &visitor) const noexcept {
+void ProgramDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -373,7 +373,7 @@ const std::string &ClassDeclaration::parent() const noexcept {
     return parent_;
 }
 
-void ClassDeclaration::accept(Visitor &visitor) const noexcept {
+void ClassDeclaration::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -391,7 +391,7 @@ const MemberDeclaration *ClassDefinition::body() const noexcept {
     return body_.get();
 }
 
-void ClassDefinition::accept(Visitor &visitor) const noexcept {
+void ClassDefinition::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
@@ -409,10 +409,12 @@ const Expr *Program::main_class() const noexcept {
     return main_class_.get();
 }
 
-void Program::accept(Visitor &visitor) const noexcept {
+void Program::do_accept(VisitorBase &visitor) const noexcept {
     visitor(*this);
 }
 
-Visitor::~Visitor() {
+VisitorBase::~VisitorBase() {}
 
-}
+Visitor<void>::~Visitor() {}
+
+void Visitor<void>::result() const {}

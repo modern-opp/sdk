@@ -3,6 +3,7 @@
 //
 
 #include "visitors/recursive_visitor.hpp"
+#include <algorithm>
 
 void yy::RecursiveVisitor::operator()(const BooleanLiteralExpr &boolean_literal_expr) {
 

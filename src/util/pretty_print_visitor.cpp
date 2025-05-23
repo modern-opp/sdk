@@ -1,5 +1,6 @@
 #include "ast.hpp"
 #include "visitors/pretty_print_visitor.hpp"
+#include <algorithm>
 #include <format>
 #include <iostream>
 

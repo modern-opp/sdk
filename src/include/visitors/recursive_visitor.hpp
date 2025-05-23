@@ -10,7 +10,7 @@
 #include <string>
 
 namespace yy {
-    class RecursiveVisitor : public Visitor {
+    class RecursiveVisitor : public Visitor<void> {
     public:
         RecursiveVisitor() {}
 

@@ -160,7 +160,7 @@ yy::parser::symbol_type yy::Scanner::get_identifier_or_undef() {
 
 yy::Scanner::Scanner(
         yy::BufferedReader reader,
-        const std::__1::basic_string<char> &filename
+        const std::string &filename
 ) : filename_(filename), reader_(std::move(reader))
      {}
 
