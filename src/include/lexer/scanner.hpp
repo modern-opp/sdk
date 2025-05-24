@@ -5,8 +5,8 @@
 #ifndef OPP_FRONTEND_SCANNER_HPP
 #define OPP_FRONTEND_SCANNER_HPP
 
-#include "parser.tab.hpp"
-#include "buffered_reader.hpp"
+#include "parser/parser.tab.hpp"
+#include "lexer/buffered_reader.hpp"
 
 namespace yy {
 

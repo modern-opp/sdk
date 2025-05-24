@@ -2,7 +2,7 @@
 // Created by Nikita Morozov on 27.03.2025.
 //
 
-#include "buffered_reader.hpp"
+#include "lexer/buffered_reader.hpp"
 
 #include <utility>
 

@@ -2,22 +2,17 @@
 // Created by Nikita Morozov on 31.03.2025.
 //
 
-#ifndef OPP_FRONTEND_AST_UTIL_HPP
-#define OPP_FRONTEND_AST_UTIL_HPP
+#ifndef OPP_FRONTEND_RECURSIVE_VISITOR_HPP
+#define OPP_FRONTEND_RECURSIVE_VISITOR_HPP
 
+
+#include "ast/ast.hpp"
 #include <string>
 
-#include "ast.hpp"
-#include "recursive_visitor.hpp"
-
-
 namespace yy {
-
-    class PrettyPrintVisitor : public  RecursiveVisitor {
+    class RecursiveVisitor : public Visitor<void> {
     public:
-        PrettyPrintVisitor() : RecursiveVisitor() {
-
-        }
+        RecursiveVisitor() {}
 
         void operator()(const BooleanLiteralExpr &boolean_literal_expr) override;
 
@@ -67,19 +62,10 @@ namespace yy {
 
         void operator()(const Program &program) override;
 
-        std::string output() const;
+        ~RecursiveVisitor() override {
 
-        ~PrettyPrintVisitor() override {
-
-        }
-
-    private:
-        void print_ident();
-        void print_close_ident();
-
-        size_t depth_{};
-        std::string output_;
+        };
     };
 }
 
-#endif //OPP_FRONTEND_AST_UTIL_HPP
+#endif //OPP_FRONTEND_RECURSIVE_VISITOR_HPP

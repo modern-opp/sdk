@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include <map>
-#include "parser.tab.hpp"
+#include "parser/parser.tab.hpp"
 
 namespace yy {
     class driver {

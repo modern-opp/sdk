@@ -2,7 +2,7 @@
 // Created by Nikita Morozov on 20.02.2025.
 //
 
-#include "parser.tab.hpp"
+#include "parser/parser.tab.hpp"
 #include "driver.hpp"
 
 int main(int argc, char **argv) {

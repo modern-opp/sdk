@@ -1,7 +1,7 @@
 #ifndef AST_HPP
 #define AST_HPP
 
-#include "location.hh"
+#include "parser/location.hh"
 
 #include <memory>
 #include <string>

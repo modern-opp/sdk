@@ -2,7 +2,7 @@
 // Created by Nikita Morozov on 03.04.2025.
 //
 
-#include "visitors/recursive_visitor.hpp"
+#include "visitor/recursive_visitor.hpp"
 #include <algorithm>
 
 void yy::RecursiveVisitor::operator()(const BooleanLiteralExpr &boolean_literal_expr) {

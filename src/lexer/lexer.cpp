@@ -1,8 +1,8 @@
 #include<string>
 #include<iostream>
-#include "parser.tab.hpp"
-#include "token_utils.hpp"
-#include "scanner.hpp"
+#include "parser/parser.tab.hpp"
+#include "util/token_utils.hpp"
+#include "lexer/scanner.hpp"
 
 
 namespace yy {

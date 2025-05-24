@@ -2,10 +2,10 @@
 // Created by Nikita Morozov on 27.03.2025.
 //
 
-#include "scanner.hpp"
+#include "lexer/scanner.hpp"
 
 #include <utility>
-#include "buffered_reader.hpp"
+#include "lexer/buffered_reader.hpp"
 
 // BEGIN PREDICATES BLOCK
 

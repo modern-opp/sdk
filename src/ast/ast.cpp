@@ -1,4 +1,4 @@
-#include "ast.hpp"
+#include "ast/ast.hpp"
 
 NodeBase::NodeBase(yy::location l) noexcept: location_(l) {}
 

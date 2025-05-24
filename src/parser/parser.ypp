@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "ast.hpp"
+#include "ast/ast.hpp"
 
 namespace yy {
 

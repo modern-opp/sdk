@@ -2,7 +2,7 @@
 // Created by Nikita Morozov on 30.03.2025.
 //
 
-#include "token_utils.hpp"
+#include "util/token_utils.hpp"
 
 
 std::string yy::token_to_string(yy::parser::symbol_kind::symbol_kind_type token) {

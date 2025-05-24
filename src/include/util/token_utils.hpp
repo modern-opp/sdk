@@ -6,7 +6,7 @@
 #define OPP_FRONTEND_TOKEN_UTILS_HPP
 
 #include <string>
-#include "parser.tab.hpp"
+#include "parser/parser.tab.hpp"
 
 namespace yy {
     std::string token_to_string(yy::parser::symbol_kind::symbol_kind_type token);

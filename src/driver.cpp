@@ -3,9 +3,9 @@
 //
 
 #include "driver.hpp"
-#include "scanner.hpp"
-#include "buffered_reader.hpp"
-#include "visitors/pretty_print_visitor.hpp"
+#include "lexer/scanner.hpp"
+#include "lexer/buffered_reader.hpp"
+#include "visitor/pretty_print_visitor.hpp"
 
 yy::driver::driver()  {
 
