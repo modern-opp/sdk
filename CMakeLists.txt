@@ -36,6 +36,7 @@ set(SOURCES
         src/lexer/lexer.cpp
         src/driver.cpp
         src/ast/ast.cpp
+        src/semantic/symbol.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
         src/util/token_utils.cpp
@@ -44,6 +45,7 @@ set(SOURCES
         src/include/ast/ast.hpp
         src/include/lexer/buffered_reader.hpp
         src/include/lexer/scanner.hpp
+        src/include/semantic/symbol.hpp
         src/include/util/token_utils.hpp
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
