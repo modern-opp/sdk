@@ -7,3 +7,5 @@ tests
 CMakeFiles
 cmake_install.cmake
 CMakeCache.txt
+CMakeUserPresets.json
+**/CMakeUserPresets.json
