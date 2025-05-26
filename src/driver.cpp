@@ -6,8 +6,12 @@
 #include "lexer/scanner.hpp"
 #include "lexer/buffered_reader.hpp"
 #include "visitor/pretty_print_visitor.hpp"
+#include "semantic/symbol_table.hpp"
+#include "semantic/symbol_table_class_collector_visitor.hpp"
+#include "semantic/symbol_table_method_collector_visitor.hpp"
+#include "semantic/symbol_table_index.hpp"
 
-yy::driver::driver()  {
+yy::driver::driver() {
 
 }
 
@@ -31,7 +35,7 @@ int yy::driver::parse(const std::string &filename) {
 
     yy::parser parse(scanner, program);
 
-    std::cout << ":: BEGIN TOKEN SEQUENCE ::" << std::endl<< std::endl;
+    std::cout << ":: BEGIN TOKEN SEQUENCE ::" << std::endl << std::endl;
     int parse_failure = parse();
     std::cout << ":: END TOKEN SEQUENCE ::" << std::endl << std::endl;
 
@@ -45,6 +49,23 @@ int yy::driver::parse(const std::string &filename) {
     std::cout << ":: BEGIN DUMP AST NODES  ::" << std::endl << std::endl;
     std::cout << pretty_printer.output() << std::endl;
     std::cout << ":: END DUMP AST NODES  ::" << std::endl << std::endl;
+
+
+    std::cout << ":: BEGIN SEMANTIC ANALYSIS  ::" << std::endl << std::endl;
+    auto symbol_table = std::make_unique<SymbolTable>(std::unique_ptr<Symbol>());
+    register_builtins(symbol_table.get());
+
+    auto top_table_visitor = SymbolTableClassCollectorVisitor(symbol_table.get());
+    program->accept(top_table_visitor);
+
+    auto membre_visitor = SymbolTableMethodCollectorVisitor(symbol_table.get());
+    program->accept(membre_visitor);
+
+    auto symbol_table_index = std::make_unique<SymbolTableIndex>();
+
+
+    std::cout << symbol_table->print_debug_info() << std::endl;
+    std::cout << ":: END SEMANTIC ANALYSIS  ::" << std::endl << std::endl;
 
     return 0;
 }

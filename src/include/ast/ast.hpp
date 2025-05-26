@@ -10,14 +10,14 @@
 
 class VisitorBase;
 
-template <class T>
+template<class T>
 class Visitor;
 
 class NodeBase {
 public:
     virtual ~NodeBase() = 0;
 
-    template <class T>
+    template<class T>
     T accept(Visitor<T> &visitor) const noexcept;
 
     yy::location location() const noexcept;
@@ -237,7 +237,8 @@ private:
 
 class IfStmt : public Stmt {
 public:
-    IfStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&then_body, std::unique_ptr<Body> &&else_body = nullptr) noexcept;
+    IfStmt(yy::location l, std::unique_ptr<Expr> &&condition, std::unique_ptr<Body> &&then_body,
+           std::unique_ptr<Body> &&else_body = nullptr) noexcept;
 
     const Expr *condition() const noexcept;
 
@@ -283,7 +284,8 @@ protected:
 
 class MemberDeclaration : public NodeBase {
 public:
-    MemberDeclaration(yy::location l, std::vector<std::unique_ptr<MemberDeclarationExpr>> &&member_declarations) noexcept;
+    MemberDeclaration(yy::location l,
+                      std::vector<std::unique_ptr<MemberDeclarationExpr>> &&member_declarations) noexcept;
 
     const std::vector<std::unique_ptr<MemberDeclarationExpr>> &member_declarations() const noexcept;
 
@@ -345,7 +347,8 @@ private:
 
 class ConstructorDefinition : public MemberDeclarationExpr {
 public:
-    ConstructorDefinition(yy::location l, std::unique_ptr<ConstructorDeclaration> &&header, std::unique_ptr<Body> &&body) noexcept;
+    ConstructorDefinition(yy::location l, std::unique_ptr<ConstructorDeclaration> &&header,
+                          std::unique_ptr<Body> &&body) noexcept;
 
     const ConstructorDeclaration *header() const noexcept;
 
@@ -362,7 +365,8 @@ private:
 
 class MethodDeclaration : public MemberDeclarationExpr {
 public:
-    MethodDeclaration(yy::location l, std::string name, std::vector<std::unique_ptr<ParameterDeclaration>> &&parameters, std::string return_type = "");
+    MethodDeclaration(yy::location l, std::string name, std::vector<std::unique_ptr<ParameterDeclaration>> &&parameters,
+                      std::string return_type = "");
 
     const std::string &name() const noexcept;
 
@@ -382,7 +386,8 @@ private:
 
 class MethodDefinition : public MemberDeclarationExpr {
 public:
-    MethodDefinition(yy::location l, std::unique_ptr<MethodDeclaration> &&header, std::unique_ptr<Body> &&body) noexcept;
+    MethodDefinition(yy::location l, std::unique_ptr<MethodDeclaration> &&header,
+                     std::unique_ptr<Body> &&body) noexcept;
 
     const MethodDeclaration *header() const noexcept;
 
@@ -408,7 +413,8 @@ protected:
 
 class ProgramDeclaration : public NodeBase {
 public:
-    ProgramDeclaration(yy::location l, std::vector<std::unique_ptr<ProgramDeclarationExpr>> &&class_declarations) noexcept;
+    ProgramDeclaration(yy::location l,
+                       std::vector<std::unique_ptr<ProgramDeclarationExpr>> &&class_declarations) noexcept;
 
     const std::vector<std::unique_ptr<ProgramDeclarationExpr>> &class_declarations() const noexcept;
 
@@ -439,7 +445,8 @@ private:
 
 class ClassDefinition : public ProgramDeclarationExpr {
 public:
-    ClassDefinition(yy::location l, std::unique_ptr<ClassDeclaration> &&header, std::unique_ptr<MemberDeclaration> &&body) noexcept;
+    ClassDefinition(yy::location l, std::unique_ptr<ClassDeclaration> &&header,
+                    std::unique_ptr<MemberDeclaration> &&body) noexcept;
 
     const ClassDeclaration *header() const noexcept;
 
@@ -456,7 +463,8 @@ private:
 
 class Program : public NodeBase {
 public:
-    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations, std::unique_ptr<Expr> &&main_class) noexcept;
+    Program(yy::location l, std::unique_ptr<ProgramDeclaration> &&class_declarations,
+            std::unique_ptr<Expr> &&main_class) noexcept;
 
     const ProgramDeclaration *class_declarations() const noexcept;
 
@@ -524,18 +532,18 @@ public:
     virtual ~VisitorBase();
 };
 
-template <class T>
+template<class T>
 class Visitor : public VisitorBase {
 public:
     T result() const;
 
     virtual ~Visitor();
 
-private:
+protected:
     T result_;
 };
 
-template <>
+template<>
 class Visitor<void> : public VisitorBase {
 public:
     void result() const;
@@ -543,16 +551,16 @@ public:
     virtual ~Visitor();
 };
 
-template <class T>
+template<class T>
 T NodeBase::accept(Visitor<T> &visitor) const noexcept {
     do_accept(visitor);
     return visitor.result();
 }
 
-template <class T>
+template<class T>
 Visitor<T>::~Visitor() {}
 
-template <class T>
+template<class T>
 T Visitor<T>::result() const {
     return result_;
 }

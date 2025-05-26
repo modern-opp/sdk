@@ -11,56 +11,79 @@
 
 class Symbol {
 public:
-    const std::string& name() const noexcept;
+    const std::string &name() const noexcept;
 
-    NodeBase *declaredNode() const noexcept;
+    virtual const NodeBase *declaredNode() const noexcept;
+
+    virtual std::string print_debug_info(size_t offset) const = 0;
 
 protected:
-    Symbol(const std::string &name, NodeBase *declaredNode);
+    Symbol(const std::string &name, const NodeBase *declaredNode);
 
 private:
     std::string name_;
-    NodeBase *declaredNode_;
+    const NodeBase *declaredNode_;
 };
 
 class ClassSymbol;
 
 
-class InstanceSymbol : Symbol {
+class InstanceSymbol : public Symbol {
 public:
-    InstanceSymbol(ClassSymbol *clazz, const std::string &name, NodeBase *declaredNode);
+    InstanceSymbol(const ClassSymbol *clazz, const std::string &name, const NodeBase *declaredNode);
 
-    ClassSymbol *clazz() const noexcept;
+    const ClassSymbol *clazz() const noexcept;
+
+    std::string print_debug_info(size_t offset = 0) const override;
 
 private:
-    ClassSymbol *clazz_;
+    const ClassSymbol *clazz_;
 };
 
-class MethodSymbol : Symbol {
+enum MethodSymbolKind {
+    method_declaration,
+    method_definition,
+    constructor_declaration,
+    constructor_definition
+};
+
+class MethodSymbol : public Symbol {
 public:
     MethodSymbol(
-            ClassSymbol *clazz,
-            std::vector<InstanceSymbol *> parameters,
-            ClassSymbol *returnType,
+            MethodSymbolKind kind,
+            const ClassSymbol *clazz,
+            std::vector<ClassSymbol *> &&parameters,
+            const ClassSymbol *returnType,
             const std::string &name,
-            NodeBase *declaredNode
+            const NodeBase *declaredNode
     );
 
-    const std::vector<InstanceSymbol *> &parameters() const noexcept;
+    MethodSymbolKind kind() const;
 
-    ClassSymbol *returnType() const noexcept;
+    const MethodDefinition *declaredNode() const noexcept override;
 
-    ClassSymbol *clazz() const noexcept;
+    const std::vector<ClassSymbol *> &parameters() const noexcept;
+
+    const ClassSymbol *returnType() const noexcept;
+
+    const ClassSymbol *clazz() const noexcept;
+
+    std::string print_debug_info(size_t offset = 0) const override;
 
 private:
-    ClassSymbol *clazz_;
-    std::vector<InstanceSymbol *> parameters_;
-    ClassSymbol *returnType_;
+    MethodSymbolKind kind_;
+    const ClassSymbol *clazz_;
+    std::vector<ClassSymbol *> parameters_;
+    const ClassSymbol *returnType_;
 };
 
-class ClassSymbol : Symbol {
+class ClassSymbol : public Symbol {
 public:
-    ClassSymbol(const std::string &name, NodeBase *declaredNode);
+    ClassSymbol(const std::string &name, const NodeBase *declaredNode);
+
+    const ClassDefinition *declaredNode() const noexcept override;
+
+    std::string print_debug_info(size_t offset = 0) const override;
 };
 
 

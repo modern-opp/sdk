@@ -1,23 +1,25 @@
 //
-// Created by Nikita Morozov on 31.03.2025.
+// Created by Nikita Morozov on 26.05.2025.
 //
 
-#ifndef OPP_FRONTEND_AST_UTIL_HPP
-#define OPP_FRONTEND_AST_UTIL_HPP
+#ifndef SDK_SYMBOL_TABLE_VISITOR_HPP
+#define SDK_SYMBOL_TABLE_VISITOR_HPP
 
-#include <string>
 
-#include "ast/ast.hpp"
 #include "visitor/recursive_visitor.hpp"
-
+#include "symbol_table.hpp"
+#include "symbol_table_index.hpp"
 
 namespace yy {
 
-    class PrettyPrintVisitor : public  RecursiveVisitor<void> {
+    class SymbolTableVisitor : public RecursiveVisitor<SymbolTable *> {
     public:
-        PrettyPrintVisitor() : RecursiveVisitor() {
-
-        }
+        SymbolTableVisitor(
+                SymbolTable *scope_symbol_table,
+                SymbolTableIndex *symbol_table_index
+        ) : RecursiveVisitor(),
+            scope_symbol_table_(scope_symbol_table),
+            symbol_table_index_(symbol_table_index) {}
 
         void operator()(const BooleanLiteralExpr &boolean_literal_expr) override;
 
@@ -67,19 +69,18 @@ namespace yy {
 
         void operator()(const Program &program) override;
 
-        std::string output() const;
-
-        ~PrettyPrintVisitor() override {
-
-        }
+        ~SymbolTableVisitor() override = default;
 
     private:
-        void print_ident();
-        void print_close_ident();
+        SymbolTable *scope_symbol_table_;
+        SymbolTableIndex *symbol_table_index_;
 
-        size_t depth_{};
-        std::string output_;
+        SymbolTable *resolve_method(
+                const std::string &method_name,
+                const std::vector<std::unique_ptr<ParameterDeclaration>> &parameters
+        );
     };
 }
 
-#endif //OPP_FRONTEND_AST_UTIL_HPP
+
+#endif //SDK_SYMBOL_TABLE_VISITOR_HPP

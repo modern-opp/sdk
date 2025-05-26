@@ -7,13 +7,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(LLVM REQUIRED CONFIG)
 find_package(GTest REQUIRED)
 
+if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+    execute_process(
+            COMMAND brew --prefix bison
+            RESULT_VARIABLE BREW_BISON
+            OUTPUT_VARIABLE BREW_BISON_PREFIX
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if (BREW_BISON EQUAL 0 AND EXISTS "${BREW_BISON_PREFIX}")
+        message(STATUS "Found Bison keg installed by Homebrew at ${BREW_BISON_PREFIX}")
+        set(BISON_EXECUTABLE "${BREW_BISON_PREFIX}/bin/bison")
+    endif ()
+endif ()
+
 set(BISON_Parser_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/parser/parser.ypp)
 set(BISON_Parser_OUTPUT_SOURCE ${CMAKE_CURRENT_BINARY_DIR}/include/parser/parser.tab.cpp)
 set(BISON_Parser_OUTPUT_HEADER ${CMAKE_CURRENT_BINARY_DIR}/include/parser/parser.tab.hpp)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/parser)
 add_custom_command(
     OUTPUT ${BISON_Parser_OUTPUT_SOURCE} ${BISON_Parser_OUTPUT_HEADER}
-    COMMAND bison
+    COMMAND ${BISON_EXECUTABLE}
         --output=${BISON_Parser_OUTPUT_SOURCE}
         --defines=${BISON_Parser_OUTPUT_HEADER}
         ${BISON_Parser_INPUT}
@@ -36,16 +49,27 @@ set(SOURCES
         src/lexer/lexer.cpp
         src/driver.cpp
         src/ast/ast.cpp
+        src/semantic/mangling_transformer.cpp
         src/semantic/symbol.cpp
+        src/semantic/symbol_table.cpp
+        src/semantic/symbol_table_index.cpp
+        src/semantic/symbol_table_class_collector_visitor.cpp
+        src/semantic/symbol_table_method_collector_visitor.cpp
+        src/semantic/symbol_table_visitor.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
         src/util/token_utils.cpp
         src/visitor/pretty_print_visitor.cpp
-        src/visitor/recursive_visitor.cpp
         src/include/ast/ast.hpp
         src/include/lexer/buffered_reader.hpp
         src/include/lexer/scanner.hpp
+        src/include/semantic/mangling_transformer.hpp
         src/include/semantic/symbol.hpp
+        src/include/semantic/symbol_table.hpp
+        src/include/semantic/symbol_table_index.hpp
+        src/include/semantic/symbol_table_class_collector_visitor.hpp
+        src/include/semantic/symbol_table_visitor.hpp
+        src/include/semantic/symbol_table_method_collector_visitor.hpp
         src/include/util/token_utils.hpp
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
@@ -78,3 +102,9 @@ include(GoogleTest)
 gtest_discover_tests(
         lexer_test
 )
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
