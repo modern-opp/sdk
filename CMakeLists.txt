@@ -58,6 +58,7 @@ set(SOURCES
         src/semantic/symbol_table_visitor.cpp
         src/semantic/cfa_visitor.cpp
         src/semantic/type_checker_visitor.cpp
+        src/semantic/inheritance_visitor.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
         src/util/token_utils.cpp
@@ -77,12 +78,14 @@ set(SOURCES
         src/include/semantic/symbol_table_method_collector_visitor.hpp
         src/include/semantic/semantic_error.hpp
         src/include/semantic/cfa_visitor.hpp
+        src/include/semantic/inheritance_visitor.hpp
         src/include/stdlib/builtins.hpp
         src/include/util/token_utils.hpp
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
         src/include/visitor/simple_visitor.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
+
 
 )
 

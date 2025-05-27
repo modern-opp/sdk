@@ -16,6 +16,7 @@
 #include "stdlib/builtins.hpp"
 #include "semantic/cfa_visitor.hpp"
 #include "semantic/type_checker_visitor.hpp"
+#include "semantic/inheritance_visitor.hpp"
 
 yy::driver::driver() {
 
@@ -80,6 +81,9 @@ int yy::driver::parse(const std::string &filename) {
 
     auto cfa_visitor = CFAVisitor(semantic_errors);
     program->accept(cfa_visitor);
+
+    auto inheritance_visitor = InheritanceVisitor(symbol_table_index.get(), semantic_errors);
+    program->accept(inheritance_visitor);
 
     std::cout << symbol_table->print_debug_info() << std::endl;
 

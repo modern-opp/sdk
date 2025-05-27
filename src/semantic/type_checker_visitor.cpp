@@ -262,6 +262,17 @@ void yy::TypeCheckerVisitor::operator()(const VariableDeclaration &variable_decl
         return;
     }
 
+    ClassSymbol *class_scope = symbol_table.resolve_this();
+    if (type == class_scope) {
+        semantic_errors_.emplace_back(
+                "Recursive type forbidden: " + variable_declaration.name(),
+                location->location()
+        );
+        result_ = nullptr;
+        return;
+    }
+
+
     variable->setClazz(type);
     result_ = type;
 }
