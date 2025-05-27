@@ -13,6 +13,10 @@ SymbolTable::SymbolTable(SymbolTable *parent, std::unique_ptr<Symbol> &&symbol)
 
 }
 
+Symbol *SymbolTable::getSymbol() {
+    return symbol_.get();
+}
+
 SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Symbol> &&symbol) {
     if (auto it = symbols_.find(name); it != symbols_.end()) {
         return nullptr;
@@ -35,6 +39,10 @@ SymbolTable *SymbolTable::add_child() {
 }
 
 SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept {
+    if (symbol_ && symbol_->name() == name) {
+        return const_cast<SymbolTable *>(this);
+    }
+
     if (auto symbol = symbols_.find(name); symbol != symbols_.end()) {
         return symbol->second.get();
     } else {
@@ -55,7 +63,12 @@ const ClassSymbol *SymbolTable::resolve_this() const noexcept {
 }
 
 ClassSymbol *SymbolTable::resolve_class(const std::string &name) const noexcept {
-    return dynamic_cast<ClassSymbol *>(resolve_symbol(name)->symbol_.get());
+    SymbolTable *child = resolve_symbol(name);
+    if (!child) {
+        return nullptr;
+    }
+
+    return dynamic_cast<ClassSymbol *>(child->symbol_.get());
 }
 
 MethodSymbol *SymbolTable::resolve_method(
@@ -85,7 +98,12 @@ InstanceSymbol *SymbolTable::resolve_field(
 }
 
 InstanceSymbol *SymbolTable::resolve_local(const std::string &name) const noexcept {
-    return dynamic_cast<InstanceSymbol *>(resolve_symbol(name)->symbol_.get());
+    SymbolTable *local_table = resolve_symbol(name);
+    if (!local_table) {
+        return nullptr;
+    }
+
+    return dynamic_cast<InstanceSymbol *>(local_table->symbol_.get());
 }
 
 std::string SymbolTable::print_debug_info(size_t offset) const {
@@ -96,7 +114,7 @@ std::string SymbolTable::print_debug_info(size_t offset) const {
     if (symbol_) {
         out << std::string(offset, ' ') << " \"symbol\": " << symbol_->print_debug_info(offset + 1) << std::endl;
     }
-    if(!symbols_.empty()) {
+    if (!symbols_.empty()) {
         out << std::string(offset, ' ') << " \"symbols\": [" << std::endl;
         std::for_each(symbols_.begin(), symbols_.end(), [&out, &offset](auto &pair) {
             out << std::string(offset + 1, ' ') << "\"" << pair.first << "\": ";
@@ -104,7 +122,7 @@ std::string SymbolTable::print_debug_info(size_t offset) const {
         });
         out << std::string(offset, ' ') << "]" << std::endl;
     }
-    if(!children_.empty()) {
+    if (!children_.empty()) {
         out << std::string(offset, ' ') << " \"children\": [" << std::endl;
         std::for_each(children_.begin(), children_.end(), [&out, &offset](auto &child) {
             out << child->print_debug_info(offset + 1);

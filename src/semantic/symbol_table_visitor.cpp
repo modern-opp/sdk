@@ -108,6 +108,16 @@ void yy::SymbolTableVisitor::operator()(const MemberDeclaration &member_declarat
 }
 
 void yy::SymbolTableVisitor::operator()(const ParameterDeclaration &parameter_declaration) {
+    auto previous = scope_symbol_table_->resolve_local(parameter_declaration.name());
+    if (previous) {
+        semantic_errors_.emplace_back(
+                "Symbol already defined: " + parameter_declaration.name(),
+                parameter_declaration.location()
+        );
+        result_ = scope_symbol_table_;
+        return;
+    }
+
     auto symbol = std::make_unique<InstanceSymbol>(
             parm,
             scope_symbol_table_->resolve_class(parameter_declaration.type()),
@@ -124,6 +134,16 @@ void yy::SymbolTableVisitor::operator()(const VariableDeclaration &variable_decl
     SymbolTable* child_scope = nullptr;
     auto *location = dynamic_cast<const MemberDeclarationExpr *>(&variable_declaration);
     if (field_scope) {
+        auto field_symbol = dynamic_cast<InstanceSymbol*>(field_scope->getSymbol());
+        if (field_symbol->kind() != field) {
+            semantic_errors_.emplace_back(
+                    "Symbol already defined: " + variable_declaration.name(),
+                    location->location()
+            );
+            result_ = scope_symbol_table_;
+            return;
+        }
+
         child_scope = field_scope;
         symbol_table_index_->commit(location, child_scope);
     } else {
@@ -134,6 +154,14 @@ void yy::SymbolTableVisitor::operator()(const VariableDeclaration &variable_decl
                 location
         );
         child_scope = scope_symbol_table_->add_symbol(variable_declaration.name(), std::move(symbol));
+        if (!child_scope) {
+            semantic_errors_.emplace_back(
+                    "Symbol already defined: " + variable_declaration.name(),
+                    location->location()
+            );
+            result_ = scope_symbol_table_;
+            return;
+        }
         symbol_table_index_->commit(location, child_scope);
 
     }

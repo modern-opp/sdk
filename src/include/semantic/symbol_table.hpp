@@ -19,6 +19,8 @@ public:
 
     SymbolTable * add_child();
 
+    Symbol* getSymbol();
+
     SymbolTable *resolve_symbol(const std::string &name) const noexcept;
 
     ClassSymbol *resolve_class(const std::string &name) const noexcept;

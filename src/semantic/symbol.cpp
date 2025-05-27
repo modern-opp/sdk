@@ -38,7 +38,9 @@ std::string InstanceSymbol::print_debug_info(size_t offset) const {
     out << std::string(offset, ' ') << R"( "type": "instance")" << std::endl;
     out << std::string(offset, ' ') << " \"name\": " << name() << std::endl;
     out << std::string(offset, ' ') << " \"kind\": " << kind() << std::endl;
-    out << std::string(offset, ' ') << " \"clazzID\": " << clazz()->name() << std::endl;
+    if (clazz()) {
+        out << std::string(offset, ' ') << " \"clazzID\": " << clazz()->name() << std::endl;
+    }
     out << std::string(offset, ' ') << "}";
 
     return out.str();
@@ -102,9 +104,11 @@ std::string MethodSymbol::print_debug_info(size_t offset) const {
     out << "{" << std::endl;
     out << std::string(offset, ' ') << R"( "type": "method")" << std::endl;
     out << std::string(offset, ' ') << " \"name\": " << name() << std::endl;
-    out << std::string(offset, ' ') << " \"return\": " << returnType()->name() << std::endl;
+    if (returnType()) {
+        out << std::string(offset, ' ') << " \"return\": " << returnType()->name() << std::endl;
+    }
     out << std::string(offset, ' ') << " \"kind\": " << kind() << std::endl;
-    if(!parameters().empty()) {
+    if (!parameters().empty()) {
         out << std::string(offset, ' ') << " \"params\": [" << std::endl;
         std::for_each(parameters().begin(), parameters().end(), [&out, &offset](auto param) {
             out << param->print_debug_info(offset + 2) << "," << std::endl;

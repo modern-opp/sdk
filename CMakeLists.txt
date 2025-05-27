@@ -74,6 +74,7 @@ set(SOURCES
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
+        src/include/semantic/semantic_error.hpp
 )
 
 add_executable(opp_frontend src/main.cpp ${SOURCES})

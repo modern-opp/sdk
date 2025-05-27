@@ -9,6 +9,7 @@
 #include "visitor/recursive_visitor.hpp"
 #include "symbol_table.hpp"
 #include "symbol_table_index.hpp"
+#include "semantic_error.hpp"
 
 namespace yy {
 
@@ -16,10 +17,12 @@ namespace yy {
     public:
         SymbolTableVisitor(
                 SymbolTable *scope_symbol_table,
-                SymbolTableIndex *symbol_table_index
+                SymbolTableIndex *symbol_table_index,
+                std::vector<SemanticError> &semantic_errors
         ) : RecursiveVisitor(),
             scope_symbol_table_(scope_symbol_table),
-            symbol_table_index_(symbol_table_index) {}
+            symbol_table_index_(symbol_table_index),
+            semantic_errors_(semantic_errors) {}
 
         void operator()(const BooleanLiteralExpr &boolean_literal_expr) override;
 
@@ -74,6 +77,7 @@ namespace yy {
     private:
         SymbolTable *scope_symbol_table_;
         SymbolTableIndex *symbol_table_index_;
+        std::vector<SemanticError> &semantic_errors_;
 
         SymbolTable *resolve_method(
                 const std::string &method_name,

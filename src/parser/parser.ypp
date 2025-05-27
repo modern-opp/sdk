@@ -144,7 +144,8 @@ method_body:
 parameters: LEFT_PAREN parameter_declaration_list RIGHT_PAREN { $$ = std::move($2); };
 
 parameter_declaration_list:
-    parameter_declaration_list COMMA parameter_declaration { $$ = std::move($1); $$.push_back(std::move($3)); }
+    parameter_declaration  COMMA parameter_declaration_list { $$ = std::move($3); $$.push_back(std::move($1)); }
+  | parameter_declaration { $$.push_back(std::move($1)); }
   | %empty { $$ = std::vector<std::unique_ptr<ParameterDeclaration>>{}; }
 ;
 

@@ -20,7 +20,14 @@ void yy::SymbolTableClassCollectorVisitor::operator()(const ClassDefinition &cla
             class_definition.header()->name(),
             &class_definition
     );
-    scope_symbol_table_->add_symbol(class_definition.header()->name(), std::move(symbol));
+    auto child = scope_symbol_table_->add_symbol(class_definition.header()->name(), std::move(symbol));
+    if (!child) {
+        semantic_errors_.emplace_back(
+                "Symbol already defined: " + class_definition.header()->name(),
+                class_definition.location()
+        );
+    }
+
     result_ = scope_symbol_table_;
 }
 
