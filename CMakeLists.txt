@@ -70,11 +70,13 @@ set(SOURCES
         src/include/semantic/symbol_table_class_collector_visitor.hpp
         src/include/semantic/symbol_table_visitor.hpp
         src/include/semantic/symbol_table_method_collector_visitor.hpp
+        src/include/semantic/semantic_error.hpp
         src/include/util/token_utils.hpp
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
+        src/include/visitor/simple_visitor.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
-        src/include/semantic/semantic_error.hpp
+        src/include/semantic/entrypoint_visitor.hpp
 )
 
 add_executable(opp_frontend src/main.cpp ${SOURCES})
@@ -91,7 +93,6 @@ add_executable(
         lexer_test
         test/opp_tests.cpp
         ${SOURCES}
-        src/lexer/scanner.cpp
 )
 
 target_link_libraries(

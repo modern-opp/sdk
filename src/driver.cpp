@@ -7,6 +7,7 @@
 #include "lexer/buffered_reader.hpp"
 #include "visitor/pretty_print_visitor.hpp"
 #include "semantic/symbol_table.hpp"
+#include "semantic/entrypoint_visitor.hpp"
 #include "semantic/symbol_table_class_collector_visitor.hpp"
 #include "semantic/symbol_table_method_collector_visitor.hpp"
 #include "semantic/symbol_table_visitor.hpp"
@@ -67,6 +68,9 @@ int yy::driver::parse(const std::string &filename) {
 
     auto symbols_visitor = SymbolTableVisitor(symbol_table.get(), symbol_table_index.get(), semantic_errors);
     program->accept(symbols_visitor);
+
+    auto entrypoint_visitor = EntryPointVisitor( symbol_table_index.get(), semantic_errors);
+    program->accept(entrypoint_visitor);
 
     std::cout << symbol_table->print_debug_info() << std::endl;
 
