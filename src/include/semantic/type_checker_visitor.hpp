@@ -14,14 +14,13 @@
 
 namespace yy {
 
-    class TypeCheckerVisitor : public RecursiveVisitor<Symbol*> {
+    class TypeCheckerVisitor : public RecursiveVisitor<Symbol *> {
     public:
         TypeCheckerVisitor(
                 SymbolTable *scope_symbol_table,
                 SymbolTableIndex *symbol_table_index,
                 std::vector<SemanticError> &semantic_errors
         ) : RecursiveVisitor(),
-            scope_symbol_table_(scope_symbol_table),
             symbol_table_index_(symbol_table_index),
             semantic_errors_(semantic_errors) {}
 
@@ -77,11 +76,6 @@ namespace yy {
         Symbol* callee_ = nullptr;
         SymbolTableIndex *symbol_table_index_;
         std::vector<SemanticError> &semantic_errors_;
-
-        SymbolTable *resolve_method(
-                const std::string &method_name,
-                const std::vector<std::unique_ptr<ParameterDeclaration>> &parameters
-        );
     };
 }
 
