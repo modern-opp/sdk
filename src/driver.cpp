@@ -15,6 +15,7 @@
 #include "semantic/semantic_error.hpp"
 #include "stdlib/builtins.hpp"
 #include "semantic/cfa_visitor.hpp"
+#include "semantic/type_checker_visitor.hpp"
 
 yy::driver::driver() {
 
@@ -73,6 +74,9 @@ int yy::driver::parse(const std::string &filename) {
 
     auto entrypoint_visitor = EntryPointVisitor( symbol_table_index.get(), semantic_errors);
     program->accept(entrypoint_visitor);
+
+    auto type_checker_visitor = TypeCheckerVisitor(symbol_table_index.get(), semantic_errors);
+    program->accept(type_checker_visitor);
 
     auto cfa_visitor = CFAVisitor(semantic_errors);
     program->accept(cfa_visitor);

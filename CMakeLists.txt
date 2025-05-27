@@ -57,7 +57,7 @@ set(SOURCES
         src/semantic/symbol_table_method_collector_visitor.cpp
         src/semantic/symbol_table_visitor.cpp
         src/semantic/cfa_visitor.cpp
-#        src/semantic/type_checker_visitor.cpp
+        src/semantic/type_checker_visitor.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
         src/util/token_utils.cpp
@@ -69,7 +69,7 @@ set(SOURCES
         src/include/semantic/mangling_transformer.hpp
         src/include/semantic/symbol.hpp
         src/include/semantic/entrypoint_visitor.hpp
-#        src/include/semantic/type_checker_visitor.hpp
+        src/include/semantic/type_checker_visitor.hpp
         src/include/semantic/symbol_table.hpp
         src/include/semantic/symbol_table_index.hpp
         src/include/semantic/symbol_table_class_collector_visitor.hpp

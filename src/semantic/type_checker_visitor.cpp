@@ -40,7 +40,7 @@ void yy::TypeCheckerVisitor::operator()(const ThisExpr &this_expr) {
 void yy::TypeCheckerVisitor::operator()(const FieldAccessExpr &field_access_expr) {
     auto &symbol_table = symbol_table_index_->restore(&field_access_expr);
     if (callee_) {
-        auto field  = symbol_table.resolve_field(callee_->name(),field_access_expr.name());
+        auto field = symbol_table.resolve_field(callee_->name(), field_access_expr.name());
         if (!field) {
             semantic_errors_.emplace_back("Missing property", field_access_expr.location());
             result_ = nullptr;
@@ -100,11 +100,14 @@ void yy::TypeCheckerVisitor::operator()(const MethodCallExpr &method_call_expr) 
     }
 
     callee_ = symbol_table.resolve_this();
-    auto method = symbol_table.resolve_method(callee_->name(), method_call_expr.name(), args);
-    if (method) {
-        result_ = const_cast<ClassSymbol *>(method->returnType());
-        return;
+    if (callee_) {
+        auto method = symbol_table.resolve_method(callee_->name(), method_call_expr.name(), args);
+        if (method) {
+            result_ = const_cast<ClassSymbol *>(method->returnType());
+            return;
+        }
     }
+
 
     auto constructor = symbol_table.resolve_method(
             method_call_expr.name(),

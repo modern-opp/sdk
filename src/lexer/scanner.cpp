@@ -131,7 +131,7 @@ yy::parser::symbol_type yy::Scanner::get_special() {
         if (s == "[")
             // TODO: implement "[" token
             return yy::parser::make_RIGHT_PAREN(end_token());
-        if (s == ":")
+        if (s == ":" && peek() != '=')
             return yy::parser::make_COLON(end_token());
         if (s == ",")
             return yy::parser::make_COMMA(end_token());

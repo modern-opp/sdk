@@ -32,13 +32,17 @@ SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Sy
 }
 
 SymbolTable *SymbolTable::add_child() {
-    auto child = std::make_unique<SymbolTable>();
+    auto child = std::make_unique<SymbolTable>(this);
 
     children_.push_back(std::move(child));
     return children_.rbegin()->get();
 }
 
 SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept {
+    if (name.empty()) {
+        return nullptr;
+    }
+
     if (symbol_ && symbol_->name() == name) {
         return const_cast<SymbolTable *>(this);
     }
@@ -52,8 +56,12 @@ SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept
 
 MethodSymbol *SymbolTable::method_scope() {
     for (auto symbol_table = this;
-         symbol_table->symbol_ != nullptr;
+         symbol_table->parent_ != nullptr;
          symbol_table = symbol_table->parent_) {
+        if (!symbol_table->symbol_) {
+            continue;
+        }
+
         if (auto clazz = dynamic_cast<const MethodSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
             return const_cast<MethodSymbol *>(clazz);
         }
@@ -64,8 +72,13 @@ MethodSymbol *SymbolTable::method_scope() {
 
 ClassSymbol *SymbolTable::resolve_this() const noexcept {
     for (auto symbol_table = this;
-         symbol_table->symbol_ != nullptr;
+         symbol_table->parent_ != nullptr;
          symbol_table = symbol_table->parent_) {
+        if (!symbol_table->symbol_) {
+            continue;
+        }
+
+
         if (auto clazz = dynamic_cast<const ClassSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
             return const_cast<ClassSymbol *>(clazz);
         }
@@ -93,7 +106,10 @@ MethodSymbol *SymbolTable::resolve_method(
         return nullptr;
     }
     auto name = transform_to_mangling_name(method_name, args);
-    auto method_table = clazz_table->resolve_symbol(method_name);
+    auto method_table = clazz_table->resolve_symbol(name);
+    if (!method_table) {
+        return nullptr;
+    }
     return dynamic_cast<MethodSymbol *>(method_table->symbol_.get());
 }
 

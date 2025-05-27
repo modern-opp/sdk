@@ -17,7 +17,6 @@ namespace yy {
     class TypeCheckerVisitor : public RecursiveVisitor<Symbol *> {
     public:
         TypeCheckerVisitor(
-                SymbolTable *scope_symbol_table,
                 SymbolTableIndex *symbol_table_index,
                 std::vector<SemanticError> &semantic_errors
         ) : RecursiveVisitor(),
@@ -48,27 +47,9 @@ namespace yy {
 
         void operator()(const WhileStmt &while_stmt) override;
 
-        void operator()(const MemberDeclaration &member_declaration) override;
-
         void operator()(const ParameterDeclaration &parameter_declaration) override;
 
         void operator()(const VariableDeclaration &variable_declaration) override;
-
-        void operator()(const ConstructorDeclaration &constructor_declaration) override;
-
-        void operator()(const ConstructorDefinition &constructor_definition) override;
-
-        void operator()(const MethodDeclaration &method_declaration) override;
-
-        void operator()(const MethodDefinition &method_definition) override;
-
-        void operator()(const ProgramDeclaration &program_declaration) override;
-
-        void operator()(const ClassDeclaration &class_declaration) override;
-
-        void operator()(const ClassDefinition &class_definition) override;
-
-        void operator()(const Program &program) override;
 
         ~TypeCheckerVisitor() override = default;
 
