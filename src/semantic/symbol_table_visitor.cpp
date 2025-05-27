@@ -56,15 +56,17 @@ void yy::SymbolTableVisitor::operator()(const MemberAccess &member_access) {
 }
 
 void yy::SymbolTableVisitor::operator()(const Body &body) {
-    // todo
+    auto parent_scope = scope_symbol_table_;
     symbol_table_index_->commit(&body, scope_symbol_table_);
+    scope_symbol_table_ = parent_scope->add_child();
     std::for_each(
             body.expressions().begin(),
             body.expressions().end(),
             [this](auto &decl) {
-                decl->accept(*this);
+                scope_symbol_table_ = decl->accept(*this);
             }
     );
+    scope_symbol_table_ = parent_scope;
 }
 
 void yy::SymbolTableVisitor::operator()(const ReturnStmt &return_stmt) {
@@ -78,16 +80,18 @@ void yy::SymbolTableVisitor::operator()(const AssignmentStmt &assignment_stmt) {
 }
 
 void yy::SymbolTableVisitor::operator()(const IfStmt &if_stmt) {
-    // todo
+    symbol_table_index_->commit(&if_stmt, scope_symbol_table_);
     if_stmt.condition()->accept(*this);
+
     if_stmt.then_body()->accept(*this);
+
     if (if_stmt.else_body()) {
         if_stmt.else_body()->accept(*this);
     }
 }
 
 void yy::SymbolTableVisitor::operator()(const WhileStmt &while_stmt) {
-    // todo
+    symbol_table_index_->commit(&while_stmt, scope_symbol_table_);
     while_stmt.condition()->accept(*this);
     while_stmt.loop_body()->accept(*this);
 }
@@ -104,12 +108,37 @@ void yy::SymbolTableVisitor::operator()(const MemberDeclaration &member_declarat
 }
 
 void yy::SymbolTableVisitor::operator()(const ParameterDeclaration &parameter_declaration) {
-    // todo
+    auto symbol = std::make_unique<InstanceSymbol>(
+            parm,
+            scope_symbol_table_->resolve_class(parameter_declaration.type()),
+            parameter_declaration.name(),
+            &parameter_declaration
+    );
+    auto child_scope = scope_symbol_table_->add_symbol(parameter_declaration.name(), std::move(symbol));
+    symbol_table_index_->commit(&parameter_declaration, child_scope);
+    result_ = child_scope;
 }
 
 void yy::SymbolTableVisitor::operator()(const VariableDeclaration &variable_declaration) {
-   // todo
+    auto field_scope = scope_symbol_table_->resolve_symbol(variable_declaration.name());
+    SymbolTable* child_scope = nullptr;
+    auto *location = dynamic_cast<const MemberDeclarationExpr *>(&variable_declaration);
+    if (field_scope) {
+        child_scope = field_scope;
+        symbol_table_index_->commit(location, child_scope);
+    } else {
+        auto symbol = std::make_unique<InstanceSymbol>(
+                local,
+                nullptr,
+                variable_declaration.name(),
+                location
+        );
+        child_scope = scope_symbol_table_->add_symbol(variable_declaration.name(), std::move(symbol));
+        symbol_table_index_->commit(location, child_scope);
+
+    }
     variable_declaration.initializer()->accept(*this);
+    result_ = child_scope;
 }
 
 void yy::SymbolTableVisitor::operator()(const ConstructorDeclaration &declaration) {
@@ -124,7 +153,7 @@ void yy::SymbolTableVisitor::operator()(const ConstructorDeclaration &declaratio
             declaration.parameters().begin(),
             declaration.parameters().end(),
             [this](auto &ptr) {
-                scope_symbol_table_ =  ptr->accept(*this);
+                scope_symbol_table_ = ptr->accept(*this);
             }
     );
     result_ = scope_symbol_table_;
@@ -161,7 +190,7 @@ void yy::SymbolTableVisitor::operator()(const MethodDeclaration &declaration) {
             declaration.parameters().begin(),
             declaration.parameters().end(),
             [this](auto &ptr) {
-                scope_symbol_table_ =  ptr->accept(*this);
+                scope_symbol_table_ = ptr->accept(*this);
             }
     );
     result_ = scope_symbol_table_;

@@ -13,9 +13,11 @@
 class SymbolTable {
 public:
 
-    SymbolTable( std::unique_ptr<Symbol> &&symbol, SymbolTable *parent = nullptr);
+    SymbolTable(SymbolTable *parent = nullptr, std::unique_ptr<Symbol> &&symbol = {});
 
     SymbolTable *add_symbol(const std::string& name, std::unique_ptr<Symbol> &&symbol);
+
+    SymbolTable * add_child();
 
     SymbolTable *resolve_symbol(const std::string &name) const noexcept;
 
@@ -42,6 +44,7 @@ private:
     std::unique_ptr<Symbol> symbol_;
     std::unordered_map<std::string, std::unique_ptr<SymbolTable>> symbols_;
     SymbolTable *parent_;
+    std::vector<std::unique_ptr<SymbolTable>> children_;
 };
 
 void register_builtins(SymbolTable* root_table);

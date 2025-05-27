@@ -8,8 +8,8 @@
 #include "semantic/mangling_transformer.hpp"
 
 
-SymbolTable::SymbolTable(std::unique_ptr<Symbol> &&symbol, SymbolTable *parent)
-        : parent_(parent), symbol_(std::move(symbol)), symbols_{} {
+SymbolTable::SymbolTable(SymbolTable *parent, std::unique_ptr<Symbol> &&symbol)
+        : parent_(parent), symbol_(std::move(symbol)), symbols_{}, children_() {
 
 }
 
@@ -18,13 +18,20 @@ SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Sy
         return nullptr;
     }
 
-    auto child = std::make_unique<SymbolTable>(std::move(symbol), this);
+    auto child = std::make_unique<SymbolTable>(this, std::move(symbol));
     auto it = symbols_.emplace(name, std::move(child));
     if (!it.second) {
         return nullptr;
     }
 
     return it.first->second.get();
+}
+
+SymbolTable *SymbolTable::add_child() {
+    auto child = std::make_unique<SymbolTable>();
+
+    children_.push_back(std::move(child));
+    return children_.rbegin()->get();
 }
 
 SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept {
@@ -89,12 +96,21 @@ std::string SymbolTable::print_debug_info(size_t offset) const {
     if (symbol_) {
         out << std::string(offset, ' ') << " \"symbol\": " << symbol_->print_debug_info(offset + 1) << std::endl;
     }
-    out << std::string(offset, ' ') << " \"children\": [" << std::endl;
-    std::for_each(symbols_.begin(), symbols_.end(), [&out, &offset](auto &pair) {
-        out << std::string(offset + 1, ' ') << "\"" << pair.first << "\": ";
-        out << pair.second->print_debug_info(offset + 1);
-    });
-    out << std::string(offset, ' ') << "]" << std::endl;
+    if(!symbols_.empty()) {
+        out << std::string(offset, ' ') << " \"symbols\": [" << std::endl;
+        std::for_each(symbols_.begin(), symbols_.end(), [&out, &offset](auto &pair) {
+            out << std::string(offset + 1, ' ') << "\"" << pair.first << "\": ";
+            out << pair.second->print_debug_info(offset + 1);
+        });
+        out << std::string(offset, ' ') << "]" << std::endl;
+    }
+    if(!children_.empty()) {
+        out << std::string(offset, ' ') << " \"children\": [" << std::endl;
+        std::for_each(children_.begin(), children_.end(), [&out, &offset](auto &child) {
+            out << child->print_debug_info(offset + 1);
+        });
+        out << std::string(offset, ' ') << "]" << std::endl;
+    }
     out << std::string(offset, ' ') << "}";
 
     return out.str();

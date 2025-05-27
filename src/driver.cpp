@@ -52,7 +52,7 @@ int yy::driver::parse(const std::string &filename) {
 
 
     std::cout << ":: BEGIN SEMANTIC ANALYSIS  ::" << std::endl << std::endl;
-    auto symbol_table = std::make_unique<SymbolTable>(std::unique_ptr<Symbol>());
+    auto symbol_table = std::make_unique<SymbolTable>(nullptr, std::unique_ptr<Symbol>());
     register_builtins(symbol_table.get());
 
     auto top_table_visitor = SymbolTableClassCollectorVisitor(symbol_table.get());

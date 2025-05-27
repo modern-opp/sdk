@@ -17,9 +17,15 @@ const NodeBase *Symbol::declaredNode() const noexcept {
 }
 
 
-InstanceSymbol::InstanceSymbol(const ClassSymbol *clazz, const std::string &name, const NodeBase *declaredNode) :
+InstanceSymbol::InstanceSymbol(
+        InstanceSymbolKind kind,
+        const ClassSymbol *clazz,
+        const std::string &name,
+        const NodeBase *declaredNode
+) :
         Symbol(name, declaredNode),
-        clazz_(clazz) {}
+        clazz_(clazz),
+        kind_(kind) {}
 
 const ClassSymbol *InstanceSymbol::clazz() const noexcept {
     return clazz_;
@@ -31,10 +37,19 @@ std::string InstanceSymbol::print_debug_info(size_t offset) const {
     out << "{" << std::endl;
     out << std::string(offset, ' ') << R"( "type": "instance")" << std::endl;
     out << std::string(offset, ' ') << " \"name\": " << name() << std::endl;
+    out << std::string(offset, ' ') << " \"kind\": " << kind() << std::endl;
     out << std::string(offset, ' ') << " \"clazzID\": " << clazz()->name() << std::endl;
     out << std::string(offset, ' ') << "}";
 
     return out.str();
+}
+
+InstanceSymbolKind InstanceSymbol::kind() const {
+    return kind_;
+}
+
+void InstanceSymbol::setClazz(const ClassSymbol *clazz) {
+    clazz_ = clazz;
 }
 
 MethodSymbol::MethodSymbol(
@@ -89,10 +104,12 @@ std::string MethodSymbol::print_debug_info(size_t offset) const {
     out << std::string(offset, ' ') << " \"name\": " << name() << std::endl;
     out << std::string(offset, ' ') << " \"return\": " << returnType()->name() << std::endl;
     out << std::string(offset, ' ') << " \"kind\": " << kind() << std::endl;
-    out << std::string(offset, ' ') << " \"params\": [" << std::endl;
-    std::for_each(parameters().begin(), parameters().end(), [&out, &offset](auto param) {
-        out << param->print_debug_info(offset + 2) << "," << std::endl;
-    });
+    if(!parameters().empty()) {
+        out << std::string(offset, ' ') << " \"params\": [" << std::endl;
+        std::for_each(parameters().begin(), parameters().end(), [&out, &offset](auto param) {
+            out << param->print_debug_info(offset + 2) << "," << std::endl;
+        });
+    }
     out << std::string(offset, ' ') << " ]" << std::endl;
     out << std::string(offset, ' ') << "},";
 

@@ -8,7 +8,8 @@
 void yy::SymbolTableMethodCollectorVisitor::operator()(const VariableDeclaration &variable_declaration) {
     // todo: inheritanse issue
     auto symbol = std::make_unique<InstanceSymbol>(
-            scope_symbol_table_->resolve_class(variable_declaration.name()),
+            field,
+            nullptr,
             variable_declaration.name(),
             dynamic_cast<const MemberDeclarationExpr*>(&variable_declaration)
     );
