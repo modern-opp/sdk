@@ -13,6 +13,7 @@
 #include "semantic/symbol_table_visitor.hpp"
 #include "semantic/symbol_table_index.hpp"
 #include "semantic/semantic_error.hpp"
+#include "stdlib/builtins.hpp"
 
 yy::driver::driver() {
 
@@ -58,7 +59,7 @@ int yy::driver::parse(const std::string &filename) {
     std::vector<SemanticError> semantic_errors;
     auto symbol_table_index = std::make_unique<SymbolTableIndex>();
     auto symbol_table = std::make_unique<SymbolTable>(nullptr, std::unique_ptr<Symbol>());
-    register_builtins(symbol_table.get());
+    oppstd::register_builtins(symbol_table.get());
 
     auto top_table_visitor = SymbolTableClassCollectorVisitor(symbol_table.get(), semantic_errors);
     program->accept(top_table_visitor);

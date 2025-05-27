@@ -134,7 +134,7 @@ void yy::SymbolTableVisitor::operator()(const VariableDeclaration &variable_decl
     SymbolTable* child_scope = nullptr;
     auto *location = dynamic_cast<const MemberDeclarationExpr *>(&variable_declaration);
     if (field_scope) {
-        auto field_symbol = dynamic_cast<InstanceSymbol*>(field_scope->getSymbol());
+        auto field_symbol = dynamic_cast<InstanceSymbol*>(field_scope->get_symbol());
         if (field_symbol->kind() != field) {
             semantic_errors_.emplace_back(
                     "Symbol already defined: " + variable_declaration.name(),

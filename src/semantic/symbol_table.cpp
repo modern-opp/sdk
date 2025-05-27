@@ -13,7 +13,7 @@ SymbolTable::SymbolTable(SymbolTable *parent, std::unique_ptr<Symbol> &&symbol)
 
 }
 
-Symbol *SymbolTable::getSymbol() {
+Symbol *SymbolTable::get_symbol() {
     return symbol_.get();
 }
 
@@ -50,12 +50,24 @@ SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept
     }
 }
 
-const ClassSymbol *SymbolTable::resolve_this() const noexcept {
+MethodSymbol *SymbolTable::method_scope() {
+    for (auto symbol_table = this;
+         symbol_table->symbol_ != nullptr;
+         symbol_table = symbol_table->parent_) {
+        if (auto clazz = dynamic_cast<const MethodSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
+            return const_cast<MethodSymbol *>(clazz);
+        }
+    }
+
+    return nullptr;
+}
+
+ClassSymbol *SymbolTable::resolve_this() const noexcept {
     for (auto symbol_table = this;
          symbol_table->symbol_ != nullptr;
          symbol_table = symbol_table->parent_) {
         if (auto clazz = dynamic_cast<const ClassSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
-            return clazz;
+            return const_cast<ClassSymbol *>(clazz);
         }
     }
 
@@ -132,16 +144,4 @@ std::string SymbolTable::print_debug_info(size_t offset) const {
     out << std::string(offset, ' ') << "}";
 
     return out.str();
-}
-
-void register_builtins(SymbolTable *root_table) {
-    std::string string_class = "String";
-    std::string integer_class = "Integer";
-    std::string real_class = "Real";
-    std::string bool_class = "Boolean";
-
-    root_table->add_symbol(string_class, std::make_unique<ClassSymbol>(string_class, nullptr));
-    root_table->add_symbol(integer_class, std::make_unique<ClassSymbol>(integer_class, nullptr));
-    root_table->add_symbol(real_class, std::make_unique<ClassSymbol>(real_class, nullptr));
-    root_table->add_symbol(bool_class, std::make_unique<ClassSymbol>(bool_class, nullptr));
 }

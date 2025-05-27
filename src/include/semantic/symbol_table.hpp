@@ -13,20 +13,33 @@
 class SymbolTable {
 public:
     SymbolTable(SymbolTable *parent = nullptr, std::unique_ptr<Symbol> &&symbol = {});
-    SymbolTable *add_symbol(const std::string& name, std::unique_ptr<Symbol> &&symbol);
-    SymbolTable * add_child();
-    Symbol* getSymbol();
+
+    SymbolTable *add_symbol(const std::string &name, std::unique_ptr<Symbol> &&symbol);
+
+    SymbolTable *add_child();
+
+    Symbol *get_symbol();
+
     SymbolTable *resolve_symbol(const std::string &name) const noexcept;
+
     ClassSymbol *resolve_class(const std::string &name) const noexcept;
-    const ClassSymbol *resolve_this() const noexcept;
-    InstanceSymbol *resolve_field(const std::string &class_name,const std::string &field_name) const noexcept;
+
+    ClassSymbol *resolve_this() const noexcept;
+
+    InstanceSymbol *resolve_field(const std::string &class_name, const std::string &field_name) const noexcept;
+
     MethodSymbol *resolve_method(
             const std::string &class_name,
             const std::string &method_name,
-            const std::vector<ClassSymbol*> &args
+            const std::vector<ClassSymbol *> &args
     ) const noexcept;
+
+    MethodSymbol *method_scope();
+
     InstanceSymbol *resolve_local(const std::string &name) const noexcept;
+
     std::string print_debug_info(size_t offset = 0) const;
+
 private:
     std::unique_ptr<Symbol> symbol_;
     std::unordered_map<std::string, std::unique_ptr<SymbolTable>> symbols_;
@@ -34,6 +47,5 @@ private:
     std::vector<std::unique_ptr<SymbolTable>> children_;
 };
 
-void register_builtins(SymbolTable* root_table);
 
 #endif //OPP_FRONTEND_SYMBOL_TABLE_HPP

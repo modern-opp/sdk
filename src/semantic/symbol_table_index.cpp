@@ -10,6 +10,6 @@ void SymbolTableIndex::commit(const NodeBase *location, SymbolTable *symbol_tabl
     index_.emplace(location, symbol_table);
 }
 
-const SymbolTable &SymbolTableIndex::restore(const NodeBase *location) {
-    return *index_.find(location)->second;
+SymbolTable &SymbolTableIndex::restore(const NodeBase *location) {
+    return const_cast<SymbolTable &>(*index_.find(location)->second);
 }

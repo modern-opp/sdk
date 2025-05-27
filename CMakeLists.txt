@@ -56,27 +56,32 @@ set(SOURCES
         src/semantic/symbol_table_class_collector_visitor.cpp
         src/semantic/symbol_table_method_collector_visitor.cpp
         src/semantic/symbol_table_visitor.cpp
+#        src/semantic/type_checker_visitor.cpp
         src/lexer/buffered_reader.cpp
         src/lexer/scanner.cpp
         src/util/token_utils.cpp
         src/visitor/pretty_print_visitor.cpp
+        src/stdlib/builtins.cpp
         src/include/ast/ast.hpp
         src/include/lexer/buffered_reader.hpp
         src/include/lexer/scanner.hpp
         src/include/semantic/mangling_transformer.hpp
         src/include/semantic/symbol.hpp
+        src/include/semantic/entrypoint_visitor.hpp
+#        src/include/semantic/type_checker_visitor.hpp
         src/include/semantic/symbol_table.hpp
         src/include/semantic/symbol_table_index.hpp
         src/include/semantic/symbol_table_class_collector_visitor.hpp
         src/include/semantic/symbol_table_visitor.hpp
         src/include/semantic/symbol_table_method_collector_visitor.hpp
         src/include/semantic/semantic_error.hpp
+        src/include/stdlib/builtins.hpp
         src/include/util/token_utils.hpp
         src/include/visitor/pretty_print_visitor.hpp
         src/include/visitor/recursive_visitor.hpp
         src/include/visitor/simple_visitor.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
-        src/include/semantic/entrypoint_visitor.hpp
+
 )
 
 add_executable(opp_frontend src/main.cpp ${SOURCES})
