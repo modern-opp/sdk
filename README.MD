@@ -18,3 +18,8 @@ $ conan install . --build missing -s compiler.cppstd=17  -s build_type=Debug
 ```shell
 $ conan build . -s compiler.cppstd=17 -s build_type=Debug
 ```
+
+```shell
+$ opp <file.opp>
+```
+
