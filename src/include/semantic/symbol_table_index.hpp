@@ -15,7 +15,7 @@ public:
 
     void commit(const NodeBase *location, SymbolTable *symbol_table);
 
-    const SymbolTable &restore(const NodeBase *location);
+    SymbolTable &restore(const NodeBase *location);
 
 private:
     std::unordered_map<const NodeBase *, SymbolTable *> index_;

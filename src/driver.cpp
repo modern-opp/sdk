@@ -7,9 +7,16 @@
 #include "lexer/buffered_reader.hpp"
 #include "visitor/pretty_print_visitor.hpp"
 #include "semantic/symbol_table.hpp"
+#include "semantic/entrypoint_visitor.hpp"
 #include "semantic/symbol_table_class_collector_visitor.hpp"
 #include "semantic/symbol_table_method_collector_visitor.hpp"
+#include "semantic/symbol_table_visitor.hpp"
 #include "semantic/symbol_table_index.hpp"
+#include "semantic/semantic_error.hpp"
+#include "stdlib/builtins.hpp"
+#include "semantic/cfa_visitor.hpp"
+#include "semantic/type_checker_visitor.hpp"
+#include "semantic/inheritance_visitor.hpp"
 
 yy::driver::driver() {
 
@@ -52,19 +59,38 @@ int yy::driver::parse(const std::string &filename) {
 
 
     std::cout << ":: BEGIN SEMANTIC ANALYSIS  ::" << std::endl << std::endl;
-    auto symbol_table = std::make_unique<SymbolTable>(std::unique_ptr<Symbol>());
-    register_builtins(symbol_table.get());
+    std::vector<SemanticError> semantic_errors;
+    auto symbol_table_index = std::make_unique<SymbolTableIndex>();
+    auto symbol_table = std::make_unique<SymbolTable>(nullptr, std::unique_ptr<Symbol>());
+    oppstd::register_builtins(symbol_table.get());
 
-    auto top_table_visitor = SymbolTableClassCollectorVisitor(symbol_table.get());
+    auto top_table_visitor = SymbolTableClassCollectorVisitor(symbol_table.get(), semantic_errors);
     program->accept(top_table_visitor);
 
-    auto membre_visitor = SymbolTableMethodCollectorVisitor(symbol_table.get());
+    auto membre_visitor = SymbolTableMethodCollectorVisitor(symbol_table.get(), semantic_errors);
     program->accept(membre_visitor);
 
-    auto symbol_table_index = std::make_unique<SymbolTableIndex>();
+    auto symbols_visitor = SymbolTableVisitor(symbol_table.get(), symbol_table_index.get(), semantic_errors);
+    program->accept(symbols_visitor);
 
+    auto entrypoint_visitor = EntryPointVisitor( symbol_table_index.get(), semantic_errors);
+    program->accept(entrypoint_visitor);
+
+    auto type_checker_visitor = TypeCheckerVisitor(symbol_table_index.get(), semantic_errors);
+    program->accept(type_checker_visitor);
+
+    auto cfa_visitor = CFAVisitor(semantic_errors);
+    program->accept(cfa_visitor);
+
+    auto inheritance_visitor = InheritanceVisitor(symbol_table_index.get(), semantic_errors);
+    program->accept(inheritance_visitor);
 
     std::cout << symbol_table->print_debug_info() << std::endl;
+
+    std::for_each(semantic_errors.begin(), semantic_errors.end(), [](auto &error) {
+        std::cerr << error << std::endl;
+    });
+
     std::cout << ":: END SEMANTIC ANALYSIS  ::" << std::endl << std::endl;
 
     return 0;

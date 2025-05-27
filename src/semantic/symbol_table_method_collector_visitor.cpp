@@ -7,13 +7,24 @@
 
 void yy::SymbolTableMethodCollectorVisitor::operator()(const VariableDeclaration &variable_declaration) {
     // todo: inheritanse issue
+    const std::string &var_name = variable_declaration.name();
+    auto *location = dynamic_cast<const MemberDeclarationExpr *>(&variable_declaration);
     auto symbol = std::make_unique<InstanceSymbol>(
-            scope_symbol_table_->resolve_class(variable_declaration.name()),
-            variable_declaration.name(),
-            dynamic_cast<const MemberDeclarationExpr*>(&variable_declaration)
+            field,
+            nullptr,
+            var_name,
+            location
     );
 
-    scope_symbol_table_->add_symbol(variable_declaration.name(), std::move(symbol));
+    const ClassSymbol *clazz = scope_symbol_table_->resolve_this();
+
+    auto child = scope_symbol_table_->add_symbol(var_name, std::move(symbol));
+    if (!child) {
+        semantic_errors_.emplace_back(
+                "Symbol already defined: " + clazz->name() + "::" + var_name,
+                location->location()
+        );
+    }
 }
 
 void yy::SymbolTableMethodCollectorVisitor::operator()(const ConstructorDefinition &definition) {
@@ -89,15 +100,22 @@ void yy::SymbolTableMethodCollectorVisitor::add_method(
     );
 
     auto name = transform_to_mangling_name(method_name, params);
+    const ClassSymbol *clazz = scope_symbol_table_->resolve_this();
     auto symbol = std::make_unique<MethodSymbol>(
             kind,
-            scope_symbol_table_->resolve_this(),
+            clazz,
             std::move(params),
             return_type,
             method_name,
             node
     );
 
-    scope_symbol_table_->add_symbol(name, std::move(symbol));
+    auto child = scope_symbol_table_->add_symbol(name, std::move(symbol));
+    if (!child) {
+        semantic_errors_.emplace_back(
+                "Symbol already defined: " + clazz->name() + "::" + method_name + "(...)",
+                node->location()
+        );
+    }
 }
 

@@ -7,14 +7,20 @@
 
 #include "semantic/symbol_table.hpp"
 #include "visitor/recursive_visitor.hpp"
+#include "semantic_error.hpp"
 
 
 namespace yy {
 
-    class SymbolTableClassCollectorVisitor : public RecursiveVisitor<SymbolTable*> {
+    class SymbolTableClassCollectorVisitor : public RecursiveVisitor<SymbolTable *> {
     public:
-        SymbolTableClassCollectorVisitor(SymbolTable *scope_symbol_table)
-                : RecursiveVisitor(), scope_symbol_table_(scope_symbol_table) {
+        SymbolTableClassCollectorVisitor(
+                SymbolTable *scope_symbol_table,
+                std::vector<SemanticError> &semantic_errors
+        )
+                : RecursiveVisitor(),
+                  scope_symbol_table_(scope_symbol_table),
+                  semantic_errors_(semantic_errors) {
         }
 
         void operator()(const ClassDefinition &class_definition) override;
@@ -23,6 +29,7 @@ namespace yy {
 
     private:
         SymbolTable *scope_symbol_table_;
+        std::vector<SemanticError> &semantic_errors_;
     };
 }
 

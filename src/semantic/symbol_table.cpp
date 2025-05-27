@@ -8,9 +8,13 @@
 #include "semantic/mangling_transformer.hpp"
 
 
-SymbolTable::SymbolTable(std::unique_ptr<Symbol> &&symbol, SymbolTable *parent)
-        : parent_(parent), symbol_(std::move(symbol)), symbols_{} {
+SymbolTable::SymbolTable(SymbolTable *parent, std::unique_ptr<Symbol> &&symbol)
+        : parent_(parent), symbol_(std::move(symbol)), symbols_{}, children_() {
 
+}
+
+Symbol *SymbolTable::get_symbol() {
+    return symbol_.get();
 }
 
 SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Symbol> &&symbol) {
@@ -18,7 +22,7 @@ SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Sy
         return nullptr;
     }
 
-    auto child = std::make_unique<SymbolTable>(std::move(symbol), this);
+    auto child = std::make_unique<SymbolTable>(this, std::move(symbol));
     auto it = symbols_.emplace(name, std::move(child));
     if (!it.second) {
         return nullptr;
@@ -27,7 +31,22 @@ SymbolTable *SymbolTable::add_symbol(const std::string &name, std::unique_ptr<Sy
     return it.first->second.get();
 }
 
+SymbolTable *SymbolTable::add_child() {
+    auto child = std::make_unique<SymbolTable>(this);
+
+    children_.push_back(std::move(child));
+    return children_.rbegin()->get();
+}
+
 SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept {
+    if (name.empty()) {
+        return nullptr;
+    }
+
+    if (symbol_ && symbol_->name() == name) {
+        return const_cast<SymbolTable *>(this);
+    }
+
     if (auto symbol = symbols_.find(name); symbol != symbols_.end()) {
         return symbol->second.get();
     } else {
@@ -35,12 +54,33 @@ SymbolTable *SymbolTable::resolve_symbol(const std::string &name) const noexcept
     }
 }
 
-const ClassSymbol *SymbolTable::resolve_this() const noexcept {
+MethodSymbol *SymbolTable::method_scope() {
     for (auto symbol_table = this;
-         symbol_table->symbol_ != nullptr;
+         symbol_table->parent_ != nullptr;
          symbol_table = symbol_table->parent_) {
+        if (!symbol_table->symbol_) {
+            continue;
+        }
+
+        if (auto clazz = dynamic_cast<const MethodSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
+            return const_cast<MethodSymbol *>(clazz);
+        }
+    }
+
+    return nullptr;
+}
+
+ClassSymbol *SymbolTable::resolve_this() const noexcept {
+    for (auto symbol_table = this;
+         symbol_table->parent_ != nullptr;
+         symbol_table = symbol_table->parent_) {
+        if (!symbol_table->symbol_) {
+            continue;
+        }
+
+
         if (auto clazz = dynamic_cast<const ClassSymbol *>(symbol_table->symbol_.get()); clazz != nullptr) {
-            return clazz;
+            return const_cast<ClassSymbol *>(clazz);
         }
     }
 
@@ -48,7 +88,12 @@ const ClassSymbol *SymbolTable::resolve_this() const noexcept {
 }
 
 ClassSymbol *SymbolTable::resolve_class(const std::string &name) const noexcept {
-    return dynamic_cast<ClassSymbol *>(resolve_symbol(name)->symbol_.get());
+    SymbolTable *child = resolve_symbol(name);
+    if (!child) {
+        return nullptr;
+    }
+
+    return dynamic_cast<ClassSymbol *>(child->symbol_.get());
 }
 
 MethodSymbol *SymbolTable::resolve_method(
@@ -61,7 +106,10 @@ MethodSymbol *SymbolTable::resolve_method(
         return nullptr;
     }
     auto name = transform_to_mangling_name(method_name, args);
-    auto method_table = clazz_table->resolve_symbol(method_name);
+    auto method_table = clazz_table->resolve_symbol(name);
+    if (!method_table) {
+        return nullptr;
+    }
     return dynamic_cast<MethodSymbol *>(method_table->symbol_.get());
 }
 
@@ -78,7 +126,12 @@ InstanceSymbol *SymbolTable::resolve_field(
 }
 
 InstanceSymbol *SymbolTable::resolve_local(const std::string &name) const noexcept {
-    return dynamic_cast<InstanceSymbol *>(resolve_symbol(name)->symbol_.get());
+    SymbolTable *local_table = resolve_symbol(name);
+    if (!local_table) {
+        return nullptr;
+    }
+
+    return dynamic_cast<InstanceSymbol *>(local_table->symbol_.get());
 }
 
 std::string SymbolTable::print_debug_info(size_t offset) const {
@@ -89,25 +142,22 @@ std::string SymbolTable::print_debug_info(size_t offset) const {
     if (symbol_) {
         out << std::string(offset, ' ') << " \"symbol\": " << symbol_->print_debug_info(offset + 1) << std::endl;
     }
-    out << std::string(offset, ' ') << " \"children\": [" << std::endl;
-    std::for_each(symbols_.begin(), symbols_.end(), [&out, &offset](auto &pair) {
-        out << std::string(offset + 1, ' ') << "\"" << pair.first << "\": ";
-        out << pair.second->print_debug_info(offset + 1);
-    });
-    out << std::string(offset, ' ') << "]" << std::endl;
+    if (!symbols_.empty()) {
+        out << std::string(offset, ' ') << " \"symbols\": [" << std::endl;
+        std::for_each(symbols_.begin(), symbols_.end(), [&out, &offset](auto &pair) {
+            out << std::string(offset + 1, ' ') << "\"" << pair.first << "\": ";
+            out << pair.second->print_debug_info(offset + 1);
+        });
+        out << std::string(offset, ' ') << "]" << std::endl;
+    }
+    if (!children_.empty()) {
+        out << std::string(offset, ' ') << " \"children\": [" << std::endl;
+        std::for_each(children_.begin(), children_.end(), [&out, &offset](auto &child) {
+            out << child->print_debug_info(offset + 1);
+        });
+        out << std::string(offset, ' ') << "]" << std::endl;
+    }
     out << std::string(offset, ' ') << "}";
 
     return out.str();
-}
-
-void register_builtins(SymbolTable *root_table) {
-    std::string string_class = "String";
-    std::string integer_class = "Integer";
-    std::string real_class = "Real";
-    std::string bool_class = "Boolean";
-
-    root_table->add_symbol(string_class, std::make_unique<ClassSymbol>(string_class, nullptr));
-    root_table->add_symbol(integer_class, std::make_unique<ClassSymbol>(integer_class, nullptr));
-    root_table->add_symbol(real_class, std::make_unique<ClassSymbol>(real_class, nullptr));
-    root_table->add_symbol(bool_class, std::make_unique<ClassSymbol>(bool_class, nullptr));
 }

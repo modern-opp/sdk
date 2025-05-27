@@ -17,6 +17,8 @@ public:
 
     virtual std::string print_debug_info(size_t offset) const = 0;
 
+    virtual ~Symbol() {}
+
 protected:
     Symbol(const std::string &name, const NodeBase *declaredNode);
 
@@ -27,10 +29,24 @@ private:
 
 class ClassSymbol;
 
+enum InstanceSymbolKind {
+    field,
+    parm,
+    local
+};
 
 class InstanceSymbol : public Symbol {
 public:
-    InstanceSymbol(const ClassSymbol *clazz, const std::string &name, const NodeBase *declaredNode);
+    InstanceSymbol(
+            InstanceSymbolKind kind,
+            const ClassSymbol *clazz,
+            const std::string &name,
+            const NodeBase *declaredNode
+    );
+
+    void setClazz(const ClassSymbol *clazz);
+
+    InstanceSymbolKind kind() const;
 
     const ClassSymbol *clazz() const noexcept;
 
@@ -38,6 +54,7 @@ public:
 
 private:
     const ClassSymbol *clazz_;
+    InstanceSymbolKind kind_;
 };
 
 enum MethodSymbolKind {
