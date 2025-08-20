@@ -49,6 +49,7 @@ set(SOURCES
         src/lexer/lexer.cpp
         src/driver.cpp
         src/ast/ast.cpp
+        src/codegen/codegen_visitor.cpp
         src/semantic/mangling_transformer.cpp
         src/semantic/symbol.cpp
         src/semantic/symbol_table.cpp
@@ -85,8 +86,7 @@ set(SOURCES
         src/include/visitor/recursive_visitor.hpp
         src/include/visitor/simple_visitor.hpp
         ${BISON_Parser_OUTPUT_SOURCE}
-
-
+        src/include/codegen/codegen_visitor.hpp
 )
 
 add_executable(opp_frontend src/main.cpp ${SOURCES})

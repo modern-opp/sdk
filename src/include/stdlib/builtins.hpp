@@ -9,10 +9,57 @@
 #include <string>
 
 namespace oppstd {
-    inline constexpr std::string string_class = "String";
-    inline constexpr std::string integer_class = "Integer";
-    inline constexpr std::string real_class = "Real";
-    inline constexpr std::string bool_class = "Boolean";
+
+    struct IntegerNames {
+        static constexpr std::string kClass = "Integer";
+        static constexpr std::string kMin = "Min";
+        static constexpr std::string kMax = "Max";
+        static constexpr std::string kToReal = "toReal";
+        static constexpr std::string kToBoolean = "toBoolean";
+        static constexpr std::string kUnaryMinus = "UnaryMinus";
+        static constexpr std::string kPlus = "Plus";
+        static constexpr std::string kMinus = "Minus";
+        static constexpr std::string kMult = "Mult";
+        static constexpr std::string kDiv = "Div";
+        static constexpr std::string kRem = "Rem";
+        static constexpr std::string kLess = "Less";
+        static constexpr std::string kLessEqual = "LessEqual";
+        static constexpr std::string kGreater = "Greater";
+        static constexpr std::string kGreaterEqual = "GreaterEqual";
+        static constexpr std::string kEqual = "Equal";
+    };
+
+    struct RealNames {
+        static constexpr std::string kClass = "Real";
+        static constexpr std::string kMin = "Min";
+        static constexpr std::string kMax = "Max";
+        static constexpr std::string kEpsilon = "Epsilon";
+        static constexpr std::string kToInteger = "toInteger";
+        static constexpr std::string kUnaryMinus = "UnaryMinus";
+        static constexpr std::string kPlus = "Plus";
+        static constexpr std::string kMinus = "Minus";
+        static constexpr std::string kMult = "Mult";
+        static constexpr std::string kDiv = "Div";
+        static constexpr std::string kRem = "Rem";
+        static constexpr std::string kLess = "Less";
+        static constexpr std::string kLessEqual = "LessEqual";
+        static constexpr std::string kGreater = "Greater";
+        static constexpr std::string kGreaterEqual = "GreaterEqual";
+        static constexpr std::string kEqual = "Equal";
+    };
+
+    struct BooleanNames {
+        static constexpr std::string kClass = "Boolean";
+        static constexpr std::string kToInteger = "toInteger";
+        static constexpr std::string kOr = "Or";
+        static constexpr std::string kAnd = "And";
+        static constexpr std::string kXor = "Xor";
+    };
+
+    struct StringNames {
+        static constexpr std::string kClass = "String";
+    };
+
 
     void register_builtins(SymbolTable* root_table);
 }

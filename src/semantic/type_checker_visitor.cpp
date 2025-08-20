@@ -14,22 +14,22 @@
 
 void yy::TypeCheckerVisitor::operator()(const BooleanLiteralExpr &boolean_literal_expr) {
     auto &symbol_table = symbol_table_index_->restore(&boolean_literal_expr);
-    result_ = symbol_table.resolve_class(oppstd::bool_class);
+    result_ = symbol_table.resolve_class(oppstd::BooleanNames::kClass);
 }
 
 void yy::TypeCheckerVisitor::operator()(const IntegerLiteralExpr &integer_literal_expr) {
     auto &symbol_table = symbol_table_index_->restore(&integer_literal_expr);
-    result_ = symbol_table.resolve_class(oppstd::integer_class);
+    result_ = symbol_table.resolve_class(oppstd::IntegerNames::kClass);
 }
 
 void yy::TypeCheckerVisitor::operator()(const RealLiteralExpr &real_literal_expr) {
     auto &symbol_table = symbol_table_index_->restore(&real_literal_expr);
-    result_ = symbol_table.resolve_class(oppstd::real_class);
+    result_ = symbol_table.resolve_class(oppstd::RealNames::kClass);
 }
 
 void yy::TypeCheckerVisitor::operator()(const StringLiteralExpr &string_literal_expr) {
     auto &symbol_table = symbol_table_index_->restore(&string_literal_expr);
-    result_ = symbol_table.resolve_class(oppstd::string_class);
+    result_ = symbol_table.resolve_class(oppstd::StringNames::kClass);
 }
 
 void yy::TypeCheckerVisitor::operator()(const ThisExpr &this_expr) {
@@ -199,7 +199,7 @@ void yy::TypeCheckerVisitor::operator()(const AssignmentStmt &assignment_stmt) {
 void yy::TypeCheckerVisitor::operator()(const IfStmt &if_stmt) {
     auto &symbol_table = symbol_table_index_->restore(&if_stmt);
     auto condition = dynamic_cast<ClassSymbol *>(if_stmt.condition()->accept(*this));
-    auto boolean = symbol_table.resolve_class(oppstd::bool_class);
+    auto boolean = symbol_table.resolve_class(oppstd::BooleanNames::kClass);
     if (condition != boolean) {
         semantic_errors_.emplace_back(
                 "Expected type: " + boolean->name() + ", but found: " + condition->name(),
@@ -217,7 +217,7 @@ void yy::TypeCheckerVisitor::operator()(const IfStmt &if_stmt) {
 void yy::TypeCheckerVisitor::operator()(const WhileStmt &while_stmt) {
     auto &symbol_table = symbol_table_index_->restore(&while_stmt);
     auto condition = dynamic_cast<ClassSymbol *>(while_stmt.condition()->accept(*this));
-    auto boolean = symbol_table.resolve_class(oppstd::bool_class);
+    auto boolean = symbol_table.resolve_class(oppstd::BooleanNames::kClass);
     if (condition != boolean) {
         semantic_errors_.emplace_back(
                 "Expected type: " + boolean->name() + ", but found: " + condition->name(),
