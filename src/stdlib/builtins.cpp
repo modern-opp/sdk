@@ -78,7 +78,7 @@ namespace oppstd {
         }
         
         // Comparison operations: Real -> Boolean
-        std::vector<std::string> comparison_ops = {"Less", "Greater", "LessEqual", "GreaterEqual", "Equal", "NotEqual"};
+        std::vector<std::string> comparison_ops = {"Less", "Greater", "LessEqual", "GreaterEqual", "Equal", "NotEqual", "Equals"};
         for (const auto& op : comparison_ops) {
             std::vector<ClassSymbol*> params = {real_class};
             auto name = transform_to_mangling_name(op, params);
@@ -113,7 +113,7 @@ namespace oppstd {
         auto bool_table = root_table->resolve_symbol(oppstd::bool_class);
         
         // Logical operations: Boolean -> Boolean
-        std::vector<std::string> binary_bool_ops = {"And", "Or", "Equal", "NotEqual"};
+        std::vector<std::string> binary_bool_ops = {"And", "Or", "Equal", "NotEqual", "Equals"};
         for (const auto& op : binary_bool_ops) {
             std::vector<ClassSymbol*> params = {bool_class};
             auto name = transform_to_mangling_name(op, params);
@@ -178,7 +178,7 @@ namespace oppstd {
         }
         
         // String comparison: String -> Boolean
-        std::vector<std::string> comparison_ops = {"Equal", "NotEqual", "Less", "Greater", "LessEqual", "GreaterEqual"};
+        std::vector<std::string> comparison_ops = {"Equal", "NotEqual", "Less", "Greater", "LessEqual", "GreaterEqual", "Equals"};
         for (const auto& op : comparison_ops) {
             std::vector<ClassSymbol*> params = {string_class};
             auto name = transform_to_mangling_name(op, params);
