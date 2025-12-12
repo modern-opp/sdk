@@ -7,19 +7,22 @@
 
 namespace oppstd {
 
-    static void register_integer_methods(SymbolTable *root_table, ClassSymbol *integer_class, ClassSymbol *bool_class) {
+    // Common comparison operations for numeric and string types
+    static const std::vector<std::string> comparison_ops = {"Less", "Greater", "LessEqual", "GreaterEqual", "Equal", "NotEqual", "Equals"};
+
+    static void register_integer_methods(SymbolTable *root_table, ClassSymbol *integer_sym, ClassSymbol *bool_sym) {
         auto integer_table = root_table->resolve_symbol(oppstd::integer_class);
         
         // Binary arithmetic operations: Integer -> Integer
         std::vector<std::string> binary_int_ops = {"Plus", "Minus", "Mult", "Div", "Mod"};
         for (const auto& op : binary_int_ops) {
-            std::vector<ClassSymbol*> params = {integer_class};
+            std::vector<ClassSymbol*> params = {integer_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                integer_class,
-                std::vector<ClassSymbol*>{integer_class},
-                integer_class,
+                integer_sym,
+                std::vector<ClassSymbol*>{integer_sym},
+                integer_sym,
                 op,
                 nullptr
             );
@@ -27,15 +30,14 @@ namespace oppstd {
         }
         
         // Comparison operations: Integer -> Boolean
-        std::vector<std::string> comparison_ops = {"Less", "Greater", "LessEqual", "GreaterEqual", "Equal", "NotEqual", "Equals"};
         for (const auto& op : comparison_ops) {
-            std::vector<ClassSymbol*> params = {integer_class};
+            std::vector<ClassSymbol*> params = {integer_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                integer_class,
-                std::vector<ClassSymbol*>{integer_class},
-                bool_class,
+                integer_sym,
+                std::vector<ClassSymbol*>{integer_sym},
+                bool_sym,
                 op,
                 nullptr
             );
@@ -48,9 +50,9 @@ namespace oppstd {
             auto name = transform_to_mangling_name("Negate", params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                integer_class,
+                integer_sym,
                 std::vector<ClassSymbol*>{},
-                integer_class,
+                integer_sym,
                 "Negate",
                 nullptr
             );
@@ -58,19 +60,19 @@ namespace oppstd {
         }
     }
 
-    static void register_real_methods(SymbolTable *root_table, ClassSymbol *real_class, ClassSymbol *bool_class) {
+    static void register_real_methods(SymbolTable *root_table, ClassSymbol *real_sym, ClassSymbol *bool_sym) {
         auto real_table = root_table->resolve_symbol(oppstd::real_class);
         
         // Binary arithmetic operations: Real -> Real
         std::vector<std::string> binary_real_ops = {"Plus", "Minus", "Mult", "Div"};
         for (const auto& op : binary_real_ops) {
-            std::vector<ClassSymbol*> params = {real_class};
+            std::vector<ClassSymbol*> params = {real_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                real_class,
-                std::vector<ClassSymbol*>{real_class},
-                real_class,
+                real_sym,
+                std::vector<ClassSymbol*>{real_sym},
+                real_sym,
                 op,
                 nullptr
             );
@@ -78,15 +80,14 @@ namespace oppstd {
         }
         
         // Comparison operations: Real -> Boolean
-        std::vector<std::string> comparison_ops = {"Less", "Greater", "LessEqual", "GreaterEqual", "Equal", "NotEqual", "Equals"};
         for (const auto& op : comparison_ops) {
-            std::vector<ClassSymbol*> params = {real_class};
+            std::vector<ClassSymbol*> params = {real_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                real_class,
-                std::vector<ClassSymbol*>{real_class},
-                bool_class,
+                real_sym,
+                std::vector<ClassSymbol*>{real_sym},
+                bool_sym,
                 op,
                 nullptr
             );
@@ -99,9 +100,9 @@ namespace oppstd {
             auto name = transform_to_mangling_name("Negate", params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                real_class,
+                real_sym,
                 std::vector<ClassSymbol*>{},
-                real_class,
+                real_sym,
                 "Negate",
                 nullptr
             );
@@ -109,19 +110,19 @@ namespace oppstd {
         }
     }
 
-    static void register_boolean_methods(SymbolTable *root_table, ClassSymbol *bool_class) {
+    static void register_boolean_methods(SymbolTable *root_table, ClassSymbol *bool_sym) {
         auto bool_table = root_table->resolve_symbol(oppstd::bool_class);
         
         // Logical operations: Boolean -> Boolean
         std::vector<std::string> binary_bool_ops = {"And", "Or", "Equal", "NotEqual", "Equals"};
         for (const auto& op : binary_bool_ops) {
-            std::vector<ClassSymbol*> params = {bool_class};
+            std::vector<ClassSymbol*> params = {bool_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                bool_class,
-                std::vector<ClassSymbol*>{bool_class},
-                bool_class,
+                bool_sym,
+                std::vector<ClassSymbol*>{bool_sym},
+                bool_sym,
                 op,
                 nullptr
             );
@@ -134,9 +135,9 @@ namespace oppstd {
             auto name = transform_to_mangling_name("Not", params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                bool_class,
+                bool_sym,
                 std::vector<ClassSymbol*>{},
-                bool_class,
+                bool_sym,
                 "Not",
                 nullptr
             );
@@ -144,18 +145,18 @@ namespace oppstd {
         }
     }
 
-    static void register_string_methods(SymbolTable *root_table, ClassSymbol *string_class, ClassSymbol *integer_class, ClassSymbol *bool_class) {
+    static void register_string_methods(SymbolTable *root_table, ClassSymbol *string_sym, ClassSymbol *integer_sym, ClassSymbol *bool_sym) {
         auto string_table = root_table->resolve_symbol(oppstd::string_class);
         
         // String concatenation: String -> String
         {
-            std::vector<ClassSymbol*> params = {string_class};
+            std::vector<ClassSymbol*> params = {string_sym};
             auto name = transform_to_mangling_name("Concat", params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                string_class,
-                std::vector<ClassSymbol*>{string_class},
-                string_class,
+                string_sym,
+                std::vector<ClassSymbol*>{string_sym},
+                string_sym,
                 "Concat",
                 nullptr
             );
@@ -168,9 +169,9 @@ namespace oppstd {
             auto name = transform_to_mangling_name("Length", params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                string_class,
+                string_sym,
                 std::vector<ClassSymbol*>{},
-                integer_class,
+                integer_sym,
                 "Length",
                 nullptr
             );
@@ -178,15 +179,14 @@ namespace oppstd {
         }
         
         // String comparison: String -> Boolean
-        std::vector<std::string> comparison_ops = {"Equal", "NotEqual", "Less", "Greater", "LessEqual", "GreaterEqual", "Equals"};
         for (const auto& op : comparison_ops) {
-            std::vector<ClassSymbol*> params = {string_class};
+            std::vector<ClassSymbol*> params = {string_sym};
             auto name = transform_to_mangling_name(op, params);
             auto symbol = std::make_unique<MethodSymbol>(
                 method_declaration,
-                string_class,
-                std::vector<ClassSymbol*>{string_class},
-                bool_class,
+                string_sym,
+                std::vector<ClassSymbol*>{string_sym},
+                bool_sym,
                 op,
                 nullptr
             );
